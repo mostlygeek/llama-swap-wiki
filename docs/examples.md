@@ -1,5 +1,4 @@
 ---
-layout: base.njk
 title: Configuration Examples
 description: Learn llama-swap configuration through practical examples
 ---
@@ -291,4 +290,4 @@ apiKeys:
 
 For a complete reference with all available options, see the [config.example.yaml](https://github.com/mostlygeek/llama-swap/blob/main/config.example.yaml) file in the GitHub repository.
 
-You can also use the [Interactive Configuration Tool](/configuration/) to build your config file with live validation.
+You can also use the [Interactive Configuration Tool](/configuration) to build your config file with live validation.

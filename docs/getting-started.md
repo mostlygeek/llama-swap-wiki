@@ -1,5 +1,4 @@
 ---
-layout: base.njk
 title: Getting Started
 description: Install and configure llama-swap in minutes
 ---
@@ -107,8 +106,8 @@ Visit `http://localhost:8080/ui` to access the web dashboard where you can:
 
 ## Next Steps
 
-- Learn more in [Configuration Examples](/examples/)
-- Build your config with the [Interactive Configuration Tool](/configuration/)
+- Learn more in [Configuration Examples](/examples)
+- Build your config with the [Interactive Configuration Tool](/configuration)
 - Read the full documentation on [GitHub](https://github.com/mostlygeek/llama-swap)
 
 ## Common Options
