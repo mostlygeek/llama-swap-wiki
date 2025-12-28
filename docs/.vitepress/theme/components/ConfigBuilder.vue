@@ -45,7 +45,7 @@ function handleCopy() {
   <div class="config-builder-container">
     <div class="flex flex-col lg:flex-row gap-6">
       <!-- Feature Selector -->
-      <div class="bg-white rounded-lg shadow p-4 border border-gray-200 lg:w-80 lg:flex-shrink-0">
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border border-gray-200 dark:border-gray-700 lg:w-80 lg:flex-shrink-0">
         <FeatureSelector
           :selected-features="selectedFeatures"
           @toggle="handleFeatureToggle"
@@ -55,11 +55,11 @@ function handleCopy() {
 
       <!-- YAML Display -->
       <div class="flex flex-col flex-1 min-w-0">
-        <div class="bg-white rounded-lg shadow overflow-hidden flex-1 flex flex-col min-h-0 border border-gray-200">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden flex-1 flex flex-col min-h-0 border border-gray-200 dark:border-gray-700">
           <!-- Header with copy button -->
-          <div class="flex items-center justify-between px-4 py-2 bg-gray-100 border-b border-gray-200 flex-shrink-0">
-            <span class="text-sm font-medium text-gray-700">config.yaml</span>
-            <button @click="handleCopy" class="text-sm text-gray-600 hover:text-gray-900 flex items-center gap-1">
+          <div class="flex items-center justify-between px-4 py-2 bg-gray-100 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600 flex-shrink-0">
+            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">config.yaml</span>
+            <button @click="handleCopy" class="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 flex items-center gap-1">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   stroke-linecap="round"

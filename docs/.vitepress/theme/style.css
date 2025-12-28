@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --color-primary: #3b82f6;
   --color-secondary: #8b5cf6;
@@ -80,4 +82,45 @@
 
 .token.italic {
   font-style: italic;
+}
+
+/* Dark mode Prism.js syntax highlighting */
+.dark .token.comment,
+.dark .token.prolog,
+.dark .token.doctype,
+.dark .token.cdata {
+  color: #9ca3af;
+  font-style: italic;
+}
+
+.dark .token.punctuation {
+  color: #d1d5db;
+}
+
+.dark .token.property,
+.dark .token.tag,
+.dark .token.constant,
+.dark .token.symbol,
+.dark .token.deleted {
+  color: #a78bfa;
+}
+
+.dark .token.boolean,
+.dark .token.number {
+  color: #60a5fa;
+}
+
+.dark .token.selector,
+.dark .token.attr-name,
+.dark .token.string,
+.dark .token.char,
+.dark .token.builtin,
+.dark .token.inserted {
+  color: #34d399;
+}
+
+.dark .token.atrule,
+.dark .token.attr-value,
+.dark .token.keyword {
+  color: #f472b6;
 }

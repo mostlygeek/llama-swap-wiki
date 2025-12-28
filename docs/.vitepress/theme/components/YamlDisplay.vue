@@ -71,21 +71,16 @@ function setLineRef(lineNum: number, el: HTMLDivElement | null) {
 </script>
 
 <template>
-  <div ref="containerRef" class="h-full overflow-auto bg-gray-50">
-    <pre class="p-3 text-sm font-mono leading-tight whitespace-nowrap">
-      <div
+  <div ref="containerRef" class="h-full overflow-auto bg-gray-50 dark:bg-gray-900">
+    <pre class="p-3 text-sm font-mono leading-tight whitespace-nowrap"><div
         v-for="(lineHtml, index) in highlightedLines"
         :key="index"
         :ref="(el) => setLineRef(index + 1, el as HTMLDivElement)"
         :class="[
           '-mx-4 px-4 transition-colors',
           fadingOut ? 'duration-[2000ms]' : 'duration-0',
-          isHighlighted(index + 1) && !fadingOut ? 'bg-yellow-200' : 'bg-transparent'
+          isHighlighted(index + 1) && !fadingOut ? 'bg-yellow-200 dark:bg-yellow-900/50' : 'bg-transparent'
         ]"
-      >
-        <span class="select-none text-gray-400 w-8 inline-block text-right mr-4">{{ index + 1 }}</span>
-        <span v-html="lineHtml || ' '"></span>
-      </div>
-    </pre>
+      ><span class="select-none text-gray-400 dark:text-gray-500 w-8 inline-block text-right mr-4">{{ index + 1 }}</span><span class="whitespace-pre" v-html="lineHtml || ' '"></span></div></pre>
   </div>
 </template>
