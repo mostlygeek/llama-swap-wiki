@@ -1,4 +1,6 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useMemo } from 'react'
+import Prism from 'prismjs'
+import 'prismjs/components/prism-yaml'
 
 interface YamlDisplayProps {
   value: string
@@ -15,6 +17,12 @@ export default function YamlDisplay({
   const containerRef = useRef<HTMLDivElement>(null)
   const highlightedLineRef = useRef<HTMLDivElement>(null)
 
+  // Highlight the entire YAML and split into lines
+  const highlightedLines = useMemo(() => {
+    const highlighted = Prism.highlight(value, Prism.languages.yaml, 'yaml')
+    return highlighted.split('\n')
+  }, [value])
+
   // When highlight changes, start fade out after a moment and scroll to highlighted line
   useEffect(() => {
     if (highlightedFeature) {
@@ -29,7 +37,8 @@ export default function YamlDisplay({
           const elementRect = element.getBoundingClientRect()
 
           // Calculate the scroll position to center the element in the container
-          const elementTop = elementRect.top - containerRect.top + container.scrollTop
+          const elementTop =
+            elementRect.top - containerRect.top + container.scrollTop
           const centerOffset = (container.clientHeight - element.clientHeight) / 2
           const targetScroll = elementTop - centerOffset
 
@@ -45,8 +54,6 @@ export default function YamlDisplay({
     }
   }, [highlightedFeature])
 
-  const lines = value.split('\n')
-
   // Find the first line that matches the highlighted feature
   let firstHighlightedLine: number | null = null
   if (highlightedFeature) {
@@ -60,8 +67,8 @@ export default function YamlDisplay({
 
   return (
     <div ref={containerRef} className="h-full overflow-auto bg-gray-50">
-      <pre className="p-4 text-sm font-mono text-gray-800 leading-relaxed">
-        {lines.map((line, index) => {
+      <pre className="p-4 text-sm font-mono leading-relaxed">
+        {highlightedLines.map((lineHtml, index) => {
           const lineNum = index + 1
           const featureId = lineFeatures.get(lineNum)
           const isHighlighted = featureId === highlightedFeature
@@ -78,7 +85,7 @@ export default function YamlDisplay({
               <span className="select-none text-gray-400 w-8 inline-block text-right mr-4">
                 {lineNum}
               </span>
-              <span>{line || ' '}</span>
+              <span dangerouslySetInnerHTML={{ __html: lineHtml || ' ' }} />
             </div>
           )
         })}

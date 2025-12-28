@@ -13,17 +13,52 @@ body {
   @apply text-gray-900 bg-white;
 }
 
-/* Monaco editor highlight animation for new sections */
-.highlight-new-section {
-  background-color: rgba(234, 179, 8, 0.3) !important;
-  animation: fadeHighlight 2s ease-out forwards;
+/* Prism.js syntax highlighting theme (minimal) */
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+  color: #6b7280;
+  font-style: italic;
 }
 
-@keyframes fadeHighlight {
-  0% {
-    background-color: rgba(234, 179, 8, 0.3);
-  }
-  100% {
-    background-color: transparent;
-  }
+.token.punctuation {
+  color: #374151;
+}
+
+.token.property,
+.token.tag,
+.token.constant,
+.token.symbol,
+.token.deleted {
+  color: #7c3aed;
+}
+
+.token.boolean,
+.token.number {
+  color: #2563eb;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+  color: #059669;
+}
+
+.token.atrule,
+.token.attr-value,
+.token.keyword {
+  color: #db2777;
+}
+
+.token.important,
+.token.bold {
+  font-weight: bold;
+}
+
+.token.italic {
+  font-style: italic;
 }
