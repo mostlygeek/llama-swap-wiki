@@ -15,26 +15,19 @@ export function FeatureSelector({
     <div className="flex flex-col h-full min-h-0">
       <h2 className="text-lg font-semibold text-gray-900 mb-4 flex-shrink-0">I want to:</h2>
 
-      <div className="flex-1 space-y-3 overflow-y-auto min-h-0">
+      <div className="flex-1 space-y-2 overflow-y-auto min-h-0">
         {features.map((feature: Feature) => (
           <label
             key={feature.id}
-            className="flex items-start gap-3 p-3 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50/50 cursor-pointer transition-colors"
+            className="flex items-center gap-3 p-2.5 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50/50 cursor-pointer transition-colors"
           >
             <input
               type="checkbox"
               checked={selectedFeatures.has(feature.id)}
               onChange={() => onFeatureToggle(feature.id)}
-              className="mt-0.5 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
             />
-            <div className="flex-1 min-w-0">
-              <div className="text-sm font-medium text-gray-900">
-                {feature.label}
-              </div>
-              <div className="text-xs text-gray-500 mt-0.5">
-                {feature.description}
-              </div>
-            </div>
+            <span className="text-sm text-gray-900">{feature.label}</span>
           </label>
         ))}
       </div>

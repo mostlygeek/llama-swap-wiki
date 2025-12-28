@@ -12,22 +12,24 @@ export function buildConfig(selectedFeatures: Set<string>): BuildResult {
   const hasMacros = selectedFeatures.has('macros')
   const hasTtl = selectedFeatures.has('ttl')
   const hasEnv = selectedFeatures.has('env')
+  const hasApiKeys = selectedFeatures.has('apiKeys')
 
   // Build base YAML with selected options
   const baseConfig = buildBaseYaml({
     macros: hasMacros,
     ttl: hasTtl,
-    env: hasEnv
+    env: hasEnv,
+    apiKeys: hasApiKeys
   })
 
   // Start with base YAML
   let modelsSection = baseConfig
-  let topLevelSections = ''
+  let suffixSections = ''
 
   // Features that add new model entries
-  const modelFeatureOrder = ['docker', 'embedding']
-  // Features that add top-level sections
-  const topLevelOrder = ['groups', 'hooks', 'apiKeys']
+  const modelFeatureOrder = ['docker']
+  // Features that add sections after models
+  const suffixOrder = ['groups', 'hooks']
 
   // Add model snippets
   for (const featureId of modelFeatureOrder) {
@@ -39,18 +41,18 @@ export function buildConfig(selectedFeatures: Set<string>): BuildResult {
     }
   }
 
-  // Add top-level sections
-  for (const featureId of topLevelOrder) {
+  // Add suffix sections (groups, hooks)
+  for (const featureId of suffixOrder) {
     if (selectedFeatures.has(featureId)) {
       const snippet = featureSnippets[featureId]
       if (snippet?.topLevel) {
-        topLevelSections += snippet.topLevel
+        suffixSections += snippet.topLevel
       }
     }
   }
 
   // Combine into final YAML
-  const yamlString = modelsSection + topLevelSections
+  const yamlString = modelsSection + suffixSections
 
   // Calculate line features for highlighting
   const lines = yamlString.split('\n')
@@ -59,6 +61,17 @@ export function buildConfig(selectedFeatures: Set<string>): BuildResult {
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i]
     const lineNum = i + 1
+
+    // Mark apiKeys-related lines
+    if (hasApiKeys) {
+      if (
+        line.includes('apiKeys:') ||
+        line.includes('sk-api-key-') ||
+        line.includes('# API Keys -')
+      ) {
+        lineFeatures.set(lineNum, 'apiKeys')
+      }
+    }
 
     // Mark macros-related lines
     if (hasMacros) {
@@ -104,8 +117,8 @@ export function buildConfig(selectedFeatures: Set<string>): BuildResult {
     }
   }
 
-  // Mark top-level section lines
-  for (const featureId of topLevelOrder) {
+  // Mark suffix section lines
+  for (const featureId of suffixOrder) {
     if (selectedFeatures.has(featureId)) {
       const snippet = featureSnippets[featureId]
       if (snippet?.topLevel) {

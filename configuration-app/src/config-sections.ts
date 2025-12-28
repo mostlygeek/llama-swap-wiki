@@ -1,50 +1,16 @@
 export interface Feature {
   id: string
   label: string
-  description: string
 }
 
 export const features: Feature[] = [
-  {
-    id: 'docker',
-    label: 'Run models in Docker',
-    description: 'Use containers with graceful shutdown'
-  },
-  {
-    id: 'macros',
-    label: 'Use macros for reusable values',
-    description: 'Reduce repetition with variables'
-  },
-  {
-    id: 'groups',
-    label: 'Group models for exclusive access',
-    description: 'Control which models can run together'
-  },
-  {
-    id: 'apiKeys',
-    label: 'Enable API key authentication',
-    description: 'Require authentication for requests'
-  },
-  {
-    id: 'ttl',
-    label: 'Set model TTL (auto-unload)',
-    description: 'Automatically unload idle models'
-  },
-  {
-    id: 'hooks',
-    label: 'Preload models on startup',
-    description: 'Start models when llama-swap launches'
-  },
-  {
-    id: 'env',
-    label: 'Use environment variables',
-    description: 'Set env vars like CUDA_VISIBLE_DEVICES'
-  },
-  {
-    id: 'embedding',
-    label: 'Configure an embedding model',
-    description: 'Add a model for embeddings/RAG'
-  }
+  { id: 'ttl', label: 'Automatically unload idle models' },
+  { id: 'macros', label: 'Reduce repetition with macros' },
+  { id: 'groups', label: 'Run multiple models at the same time' },
+  { id: 'apiKeys', label: 'Require API key authentication' },
+  { id: 'docker', label: 'Run models in docker containers' },
+  { id: 'hooks', label: 'Preload models on startup' },
+  { id: 'env', label: 'Set environment variables like CUDA_VISIBLE_DEVICES' }
 ]
 
 // Build base YAML dynamically based on selected features
@@ -52,11 +18,22 @@ export function buildBaseYaml(options: {
   macros: boolean
   ttl: boolean
   env: boolean
+  apiKeys: boolean
 }): string {
   const lines: string[] = []
 
   lines.push('# llama-swap configuration')
   lines.push('# Models are loaded on-demand and swapped automatically')
+
+  // Add apiKeys section if enabled (right after header comments)
+  if (options.apiKeys) {
+    lines.push('')
+    lines.push('# API Keys - require authentication for requests')
+    lines.push('apiKeys:')
+    lines.push('  - sk-api-key-one')
+    lines.push('  - sk-api-key-two')
+    lines.push('  - sk-api-key-three')
+  }
 
   // Add macros section if enabled
   if (options.macros) {
@@ -64,7 +41,7 @@ export function buildBaseYaml(options: {
     lines.push('# Macros - reusable values substituted with ${macro-name}')
     lines.push('macros:')
     lines.push('  llama-bin: /usr/local/bin/llama-server')
-    lines.push('  model-path: /mnt/nvme/models')
+    lines.push('  model-path: /path/to/models')
   }
 
   lines.push('')
@@ -73,6 +50,10 @@ export function buildBaseYaml(options: {
   // First model
   lines.push('  # First model - a fast general-purpose model')
   lines.push('  llama-8b:')
+  if (options.env) {
+    lines.push('    env:')
+    lines.push('      - CUDA_VISIBLE_DEVICES=0  # Use first GPU')
+  }
   if (options.macros) {
     lines.push(
       '    cmd: ${llama-bin} --port ${PORT} --model ${model-path}/llama-8b.gguf'
@@ -86,16 +67,16 @@ export function buildBaseYaml(options: {
   if (options.ttl) {
     lines.push('    ttl: 600  # Auto-unload after 10 minutes of inactivity')
   }
-  if (options.env) {
-    lines.push('    env:')
-    lines.push('      - CUDA_VISIBLE_DEVICES=0  # Use first GPU')
-  }
 
   lines.push('')
 
   // Second model
   lines.push('  # Second model - a larger coding-focused model')
   lines.push('  qwen-32b:')
+  if (options.env) {
+    lines.push('    env:')
+    lines.push('      - CUDA_VISIBLE_DEVICES=1  # Use second GPU')
+  }
   if (options.macros) {
     lines.push(
       '    cmd: ${llama-bin} --port ${PORT} --model ${model-path}/qwen-32b.gguf'
@@ -108,10 +89,6 @@ export function buildBaseYaml(options: {
   lines.push('    name: Qwen 2.5 Coder 32B')
   if (options.ttl) {
     lines.push('    ttl: 600  # Auto-unload after 10 minutes of inactivity')
-  }
-  if (options.env) {
-    lines.push('    env:')
-    lines.push('      - CUDA_VISIBLE_DEVICES=1  # Use second GPU')
   }
 
   return lines.join('\n')
@@ -130,7 +107,7 @@ export const featureSnippets: Record<
     cmd: |
       docker run --name \${MODEL_ID}
         --init --rm -p \${PORT}:8080
-        -v /mnt/models:/models
+        -v /path/to/models:/models
         ghcr.io/ggml-org/llama.cpp:server
         --model '/models/llama-8b.gguf'
     # Command to gracefully stop the container
@@ -143,19 +120,11 @@ export const featureSnippets: Record<
 # Groups - control which models can run simultaneously
 groups:
   main-models:
-    swap: true       # Unload other models in group when switching
-    exclusive: true  # Only one model from this group at a time
+    swap: false      # Keep both models loaded at the same time
+    exclusive: true  # Unload models from other groups when this group is active
     members:
       - llama-8b
       - qwen-32b`
-  },
-
-  apiKeys: {
-    topLevel: `
-
-# API Keys - require authentication for requests
-apiKeys:
-  - sk-your-api-key-here`
   },
 
   hooks: {
@@ -167,16 +136,5 @@ hooks:
     # Preload these models when llama-swap starts
     preload:
       - llama-8b`
-  },
-
-  embedding: {
-    models: `
-  # Embedding model for RAG/vector search
-  embeddings:
-    cmd: llama-server --port \${PORT} --model /models/nomic-embed.gguf --embedding
-    name: Nomic Embed
-    # Aliases let you use OpenAI-compatible embedding model names
-    aliases:
-      - text-embedding-3-small`
   }
 }
