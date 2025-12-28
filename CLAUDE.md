@@ -139,6 +139,7 @@ npm run preview
 - `.gitignore` excludes: `node_modules/`, `docs/.vitepress/cache/`, `docs/.vitepress/dist/`
 - Build output is regenerated, never commit dist
 - Keep commit messages clear and to the point
+- Never add "Co-Authored-By" or "Generated with" lines to commit messages
 
 ## Deployment
 
