@@ -6,11 +6,6 @@ export interface Feature {
 
 export const features: Feature[] = [
   {
-    id: 'multiple',
-    label: 'Add multiple models',
-    description: 'Configure more than one model for swapping'
-  },
-  {
     id: 'docker',
     label: 'Run models in Docker',
     description: 'Use containers with graceful shutdown'
@@ -49,123 +44,139 @@ export const features: Feature[] = [
     id: 'embedding',
     label: 'Configure an embedding model',
     description: 'Add a model for embeddings/RAG'
-  },
-  {
-    id: 'speculative',
-    label: 'Enable speculative decoding',
-    description: 'Use a draft model for faster inference'
   }
 ]
 
-// Base configuration that always appears
-export const baseConfig = {
-  models: {
-    'my-model': {
-      cmd: 'llama-server --port ${PORT} --model /path/to/model.gguf'
-    }
+// Build base YAML dynamically based on selected features
+export function buildBaseYaml(options: {
+  macros: boolean
+  ttl: boolean
+  env: boolean
+}): string {
+  const lines: string[] = []
+
+  lines.push('# llama-swap configuration')
+  lines.push('# Models are loaded on-demand and swapped automatically')
+
+  // Add macros section if enabled
+  if (options.macros) {
+    lines.push('')
+    lines.push('# Macros - reusable values substituted with ${macro-name}')
+    lines.push('macros:')
+    lines.push('  llama-bin: /usr/local/bin/llama-server')
+    lines.push('  model-path: /mnt/nvme/models')
   }
+
+  lines.push('')
+  lines.push('models:')
+
+  // First model
+  lines.push('  # First model - a fast general-purpose model')
+  lines.push('  llama-8b:')
+  if (options.macros) {
+    lines.push(
+      '    cmd: ${llama-bin} --port ${PORT} --model ${model-path}/llama-8b.gguf'
+    )
+  } else {
+    lines.push(
+      '    cmd: llama-server --port ${PORT} --model /models/llama-8b.gguf'
+    )
+  }
+  lines.push('    name: Llama 3.1 8B')
+  if (options.ttl) {
+    lines.push('    ttl: 600  # Auto-unload after 10 minutes of inactivity')
+  }
+  if (options.env) {
+    lines.push('    env:')
+    lines.push('      - CUDA_VISIBLE_DEVICES=0  # Use first GPU')
+  }
+
+  lines.push('')
+
+  // Second model
+  lines.push('  # Second model - a larger coding-focused model')
+  lines.push('  qwen-32b:')
+  if (options.macros) {
+    lines.push(
+      '    cmd: ${llama-bin} --port ${PORT} --model ${model-path}/qwen-32b.gguf'
+    )
+  } else {
+    lines.push(
+      '    cmd: llama-server --port ${PORT} --model /models/qwen-32b.gguf'
+    )
+  }
+  lines.push('    name: Qwen 2.5 Coder 32B')
+  if (options.ttl) {
+    lines.push('    ttl: 600  # Auto-unload after 10 minutes of inactivity')
+  }
+  if (options.env) {
+    lines.push('    env:')
+    lines.push('      - CUDA_VISIBLE_DEVICES=1  # Use second GPU')
+  }
+
+  return lines.join('\n')
 }
 
-// Feature-specific configurations to merge
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const featureConfigs: Record<string, any> = {
-  multiple: {
-    models: {
-      'llama-8b': {
-        cmd: 'llama-server --port ${PORT} --model /models/llama-8b.gguf',
-        name: 'Llama 3.1 8B',
-        description: 'Fast general-purpose model'
-      },
-      'qwen-32b': {
-        cmd: 'llama-server --port ${PORT} --model /models/qwen-32b.gguf',
-        name: 'Qwen 2.5 Coder 32B',
-        description: 'Specialized coding model'
-      }
-    }
-  },
-
+// Feature-specific YAML snippets with comments
+export const featureSnippets: Record<
+  string,
+  { models?: string; topLevel?: string }
+> = {
   docker: {
-    models: {
-      'docker-llama': {
-        proxy: 'http://127.0.0.1:${PORT}',
-        cmd: `docker run --name \${MODEL_ID}
-  --init --rm -p \${PORT}:8080
-  -v /mnt/models:/models
-  ghcr.io/ggml-org/llama.cpp:server
-  --model '/models/llama-8b.gguf'`,
-        cmdStop: 'docker stop ${MODEL_ID}'
-      }
-    }
-  },
-
-  macros: {
-    macros: {
-      'llama-bin': '/usr/local/bin/llama-server',
-      'model-path': '/mnt/nvme/models',
-      'default-ctx': 4096
-    }
+    models: `
+  # Docker model - uses proxy to connect to containerized server
+  docker-llama:
+    proxy: http://127.0.0.1:\${PORT}
+    cmd: |
+      docker run --name \${MODEL_ID}
+        --init --rm -p \${PORT}:8080
+        -v /mnt/models:/models
+        ghcr.io/ggml-org/llama.cpp:server
+        --model '/models/llama-8b.gguf'
+    # Command to gracefully stop the container
+    cmdStop: docker stop \${MODEL_ID}`
   },
 
   groups: {
-    groups: {
-      'main-models': {
-        swap: true,
-        exclusive: true,
-        members: ['my-model']
-      }
-    }
+    topLevel: `
+
+# Groups - control which models can run simultaneously
+groups:
+  main-models:
+    swap: true       # Unload other models in group when switching
+    exclusive: true  # Only one model from this group at a time
+    members:
+      - llama-8b
+      - qwen-32b`
   },
 
   apiKeys: {
-    apiKeys: ['sk-your-api-key-here']
-  },
+    topLevel: `
 
-  ttl: {
-    models: {
-      'my-model': {
-        ttl: 600
-      }
-    }
+# API Keys - require authentication for requests
+apiKeys:
+  - sk-your-api-key-here`
   },
 
   hooks: {
-    hooks: {
-      on_startup: {
-        preload: ['my-model']
-      }
-    }
-  },
+    topLevel: `
 
-  env: {
-    models: {
-      'my-model': {
-        env: ['CUDA_VISIBLE_DEVICES=0']
-      }
-    }
+# Hooks - actions triggered on startup/shutdown
+hooks:
+  on_startup:
+    # Preload these models when llama-swap starts
+    preload:
+      - llama-8b`
   },
 
   embedding: {
-    models: {
-      embeddings: {
-        cmd: 'llama-server --port ${PORT} --model /models/nomic-embed.gguf --embedding',
-        name: 'Nomic Embed',
-        aliases: ['text-embedding-3-small']
-      }
-    }
-  },
-
-  speculative: {
-    models: {
-      draft: {
-        cmd: 'llama-server --port ${PORT} --model /models/qwen-0.5b.gguf',
-        name: 'Qwen 2.5 Coder 0.5B (Draft)',
-        description: 'Fast draft model for speculative decoding'
-      },
-      'main-model': {
-        cmd: 'llama-server --port ${PORT} --model /models/qwen-32b.gguf --draft /models/qwen-0.5b.gguf',
-        name: 'Qwen 2.5 Coder 32B',
-        description: 'Main model with speculative decoding'
-      }
-    }
+    models: `
+  # Embedding model for RAG/vector search
+  embeddings:
+    cmd: llama-server --port \${PORT} --model /models/nomic-embed.gguf --embedding
+    name: Nomic Embed
+    # Aliases let you use OpenAI-compatible embedding model names
+    aliases:
+      - text-embedding-3-small`
   }
 }

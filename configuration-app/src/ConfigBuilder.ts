@@ -1,30 +1,4 @@
-import yaml from 'js-yaml'
-import { baseConfig, featureConfigs } from './config-sections'
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function isObject(item: any): item is Record<string, any> {
-  return item && typeof item === 'object' && !Array.isArray(item)
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function deepMerge(target: any, source: any): any {
-  const result = { ...target }
-
-  for (const key of Object.keys(source)) {
-    if (isObject(result[key]) && isObject(source[key])) {
-      result[key] = deepMerge(result[key], source[key])
-    } else {
-      result[key] = source[key]
-    }
-  }
-
-  return result
-}
-
-export interface LineInfo {
-  lineNumber: number
-  featureId: string | null
-}
+import { buildBaseYaml, featureSnippets } from './config-sections'
 
 export interface BuildResult {
   yaml: string
@@ -33,55 +7,113 @@ export interface BuildResult {
 }
 
 export function buildConfig(selectedFeatures: Set<string>): BuildResult {
-  let config = structuredClone(baseConfig)
   const lineFeatures = new Map<number, string>()
 
-  // Apply each selected feature's configuration
-  for (const featureId of selectedFeatures) {
-    const featureConfig = featureConfigs[featureId]
-    if (featureConfig) {
-      config = deepMerge(config, featureConfig)
+  const hasMacros = selectedFeatures.has('macros')
+  const hasTtl = selectedFeatures.has('ttl')
+  const hasEnv = selectedFeatures.has('env')
+
+  // Build base YAML with selected options
+  const baseConfig = buildBaseYaml({
+    macros: hasMacros,
+    ttl: hasTtl,
+    env: hasEnv
+  })
+
+  // Start with base YAML
+  let modelsSection = baseConfig
+  let topLevelSections = ''
+
+  // Features that add new model entries
+  const modelFeatureOrder = ['docker', 'embedding']
+  // Features that add top-level sections
+  const topLevelOrder = ['groups', 'hooks', 'apiKeys']
+
+  // Add model snippets
+  for (const featureId of modelFeatureOrder) {
+    if (selectedFeatures.has(featureId)) {
+      const snippet = featureSnippets[featureId]
+      if (snippet?.models) {
+        modelsSection += snippet.models
+      }
     }
   }
 
-  // Generate YAML with preserved order and no line wrapping
-  const yamlString = yaml.dump(config, {
-    sortKeys: false,
-    lineWidth: -1,
-    noRefs: true,
-    quotingType: '"'
-  })
+  // Add top-level sections
+  for (const featureId of topLevelOrder) {
+    if (selectedFeatures.has(featureId)) {
+      const snippet = featureSnippets[featureId]
+      if (snippet?.topLevel) {
+        topLevelSections += snippet.topLevel
+      }
+    }
+  }
 
-  // Now figure out which lines belong to which features
-  // by generating YAML for each feature individually and finding matches
+  // Combine into final YAML
+  const yamlString = modelsSection + topLevelSections
+
+  // Calculate line features for highlighting
   const lines = yamlString.split('\n')
 
-  for (const featureId of selectedFeatures) {
-    const featureConfig = featureConfigs[featureId]
-    if (!featureConfig) continue
+  // Mark lines based on features that modify base config
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]
+    const lineNum = i + 1
 
-    // Get unique keys/values that identify this feature
-    const featureYaml = yaml.dump(featureConfig, {
-      sortKeys: false,
-      lineWidth: -1,
-      noRefs: true,
-      quotingType: '"'
-    })
+    // Mark macros-related lines
+    if (hasMacros) {
+      if (
+        line.includes('macros:') ||
+        line.includes('llama-bin:') ||
+        line.includes('model-path:') ||
+        line.includes('${llama-bin}') ||
+        line.includes('${model-path}') ||
+        line.includes('# Macros -')
+      ) {
+        lineFeatures.set(lineNum, 'macros')
+      }
+    }
 
-    const featureLines = featureYaml.split('\n').filter((l) => l.trim())
+    // Mark TTL-related lines
+    if (hasTtl && line.includes('ttl:')) {
+      lineFeatures.set(lineNum, 'ttl')
+    }
 
-    // Find lines in the full YAML that match this feature's content
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i]
-      for (const featureLine of featureLines) {
-        // Match if the line contains unique content from the feature
-        if (
-          featureLine.trim() &&
-          line.includes(featureLine.trim()) &&
-          !lineFeatures.has(i + 1)
-        ) {
-          lineFeatures.set(i + 1, featureId)
+    // Mark env-related lines
+    if (hasEnv) {
+      if (line.includes('env:') || line.includes('CUDA_VISIBLE_DEVICES')) {
+        lineFeatures.set(lineNum, 'env')
+      }
+    }
+  }
+
+  // Mark model snippet lines
+  const baseLines = baseConfig.split('\n').length
+  let currentLine = baseLines + 1
+
+  for (const featureId of modelFeatureOrder) {
+    if (selectedFeatures.has(featureId)) {
+      const snippet = featureSnippets[featureId]
+      if (snippet?.models) {
+        const snippetLines = snippet.models.split('\n').length
+        for (let i = 0; i < snippetLines; i++) {
+          lineFeatures.set(currentLine + i, featureId)
         }
+        currentLine += snippetLines
+      }
+    }
+  }
+
+  // Mark top-level section lines
+  for (const featureId of topLevelOrder) {
+    if (selectedFeatures.has(featureId)) {
+      const snippet = featureSnippets[featureId]
+      if (snippet?.topLevel) {
+        const snippetLines = snippet.topLevel.split('\n').length
+        for (let i = 0; i < snippetLines; i++) {
+          lineFeatures.set(currentLine + i, featureId)
+        }
+        currentLine += snippetLines
       }
     }
   }
