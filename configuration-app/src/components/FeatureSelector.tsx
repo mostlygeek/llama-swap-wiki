@@ -12,10 +12,10 @@ export function FeatureSelector({
   onDownload
 }: FeatureSelectorProps) {
   return (
-    <div className="flex flex-col h-full">
-      <h2 className="text-lg font-semibold text-gray-900 mb-4">I want to:</h2>
+    <div className="flex flex-col h-full min-h-0">
+      <h2 className="text-lg font-semibold text-gray-900 mb-4 flex-shrink-0">I want to:</h2>
 
-      <div className="flex-1 space-y-3 overflow-y-auto">
+      <div className="flex-1 space-y-3 overflow-y-auto min-h-0">
         {features.map((feature: Feature) => (
           <label
             key={feature.id}
@@ -39,7 +39,7 @@ export function FeatureSelector({
         ))}
       </div>
 
-      <div className="mt-6 pt-4 border-t border-gray-200">
+      <div className="mt-4 pt-4 border-t border-gray-200 flex-shrink-0">
         <button
           onClick={onDownload}
           className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"

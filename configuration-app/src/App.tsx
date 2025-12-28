@@ -50,28 +50,28 @@ function App() {
   }, [yamlContent])
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="h-screen flex flex-col overflow-hidden">
       <Navigation />
 
-      <main className="flex-1">
-        {/* Page Title Section */}
-        <div className="bg-white border-b border-gray-200">
-          <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
-            <h1 className="text-3xl font-bold text-gray-900">
-              Configuration Builder
-            </h1>
-            <p className="mt-2 text-gray-600">
-              Build your llama-swap configuration by selecting features below
-            </p>
-          </div>
+      {/* Page Title Section */}
+      <div className="bg-white border-b border-gray-200 flex-shrink-0">
+        <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
+          <h1 className="text-2xl font-bold text-gray-900">
+            Configuration Builder
+          </h1>
+          <p className="mt-1 text-sm text-gray-600">
+            Build your llama-swap configuration by selecting features below
+          </p>
         </div>
+      </div>
 
-        {/* Main Content - Sidebar Layout */}
-        <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-          <div className="flex flex-col lg:flex-row gap-8">
+      {/* Main Content - fills remaining height */}
+      <main className="flex-1 overflow-hidden">
+        <div className="h-full max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
+          <div className="h-full flex flex-col lg:flex-row gap-6">
             {/* Sidebar - Feature Selector */}
-            <div className="lg:w-80 flex-shrink-0">
-              <div className="bg-white rounded-lg shadow p-6 lg:sticky lg:top-8">
+            <div className="lg:w-80 flex-shrink-0 flex flex-col min-h-0">
+              <div className="bg-white rounded-lg shadow p-4 flex-1 overflow-hidden flex flex-col">
                 <FeatureSelector
                   selectedFeatures={selectedFeatures}
                   onFeatureToggle={handleFeatureToggle}
@@ -81,10 +81,10 @@ function App() {
             </div>
 
             {/* Main Content - YAML Display */}
-            <div className="flex-1 min-w-0">
-              <div className="bg-white rounded-lg shadow overflow-hidden">
+            <div className="flex-1 min-w-0 flex flex-col min-h-0">
+              <div className="bg-white rounded-lg shadow overflow-hidden flex-1 flex flex-col min-h-0">
                 {/* Header with copy button */}
-                <div className="flex items-center justify-between px-4 py-2 bg-gray-100 border-b border-gray-200">
+                <div className="flex items-center justify-between px-4 py-2 bg-gray-100 border-b border-gray-200 flex-shrink-0">
                   <span className="text-sm font-medium text-gray-700">
                     config.yaml
                   </span>
@@ -108,66 +108,18 @@ function App() {
                     Copy
                   </button>
                 </div>
-                <YamlDisplay
-                  value={yamlContent}
-                  lineFeatures={lineFeatures}
-                  highlightedFeature={highlightedFeature}
-                />
-              </div>
-
-              {/* Info Box */}
-              <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <div className="flex">
-                  <div className="flex-shrink-0">
-                    <svg
-                      className="h-5 w-5 text-blue-400"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </div>
-                  <div className="ml-3">
-                    <h3 className="text-sm font-medium text-blue-800">
-                      Configuration Tips
-                    </h3>
-                    <div className="mt-2 text-sm text-blue-700">
-                      <ul className="list-disc pl-5 space-y-1">
-                        <li>
-                          Use{' '}
-                          <code className="bg-blue-100 px-1 rounded">
-                            {'${PORT}'}
-                          </code>{' '}
-                          macro for automatic port assignment
-                        </li>
-                        <li>
-                          Select features to add configuration sections
-                        </li>
-                        <li>
-                          Download or copy the generated config when ready
-                        </li>
-                        <li>
-                          Check out the{' '}
-                          <a href="/" className="font-medium underline">
-                            documentation
-                          </a>{' '}
-                          for more details
-                        </li>
-                      </ul>
-                    </div>
-                  </div>
+                <div className="flex-1 overflow-hidden">
+                  <YamlDisplay
+                    value={yamlContent}
+                    lineFeatures={lineFeatures}
+                    highlightedFeature={highlightedFeature}
+                  />
                 </div>
               </div>
             </div>
           </div>
         </div>
       </main>
-
-      <Footer />
     </div>
   )
 }
