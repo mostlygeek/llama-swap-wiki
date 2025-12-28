@@ -9,7 +9,6 @@ export default function Navigation() {
           <div className="flex space-x-4">
             <a href="/" className="hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium">Home</a>
             <a href="/getting-started/" className="hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium">Getting Started</a>
-            <a href="/examples/" className="hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium">Examples</a>
             <a href="/configuration/" className="bg-gray-700 px-3 py-2 rounded-md text-sm font-medium">Configuration</a>
             <a href="https://github.com/mostlygeek/llama-swap" target="_blank" rel="noopener" className="hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium">GitHub</a>
           </div>
