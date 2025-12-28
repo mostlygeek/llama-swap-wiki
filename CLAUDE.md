@@ -152,6 +152,16 @@ npm run dev
 - React dev server uses default Vite port 5173
 - Change in both `.eleventy.js` and package.json scripts if needed
 
+### Styling Synchronization
+The React configuration app and main 11ty site have separate CSS bundles but should look identical.
+
+**Files that must stay synchronized**:
+- **CSS Theme**: `src/css/styles.css` @theme ↔ `configuration-app/src/index.css` @theme
+- **Navigation**: `src/_includes/nav.njk` ↔ `configuration-app/src/components/Navigation.tsx`
+- **Footer**: `src/_includes/base.njk` footer ↔ `configuration-app/src/components/Footer.tsx`
+
+When updating these components, apply changes to both locations and rebuild React app with `npm run build:react`.
+
 ## Git Workflow
 
 - Commit both `CLAUDE.md` and `CLAUDE.local.md` (if used)

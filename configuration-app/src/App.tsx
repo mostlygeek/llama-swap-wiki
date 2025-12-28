@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import YamlEditor from './components/YamlEditor'
 import ExampleSelector from './components/ExampleSelector'
+import Navigation from './components/Navigation'
+import Footer from './components/Footer'
 import { examples } from './examples'
 
 function App() {
@@ -28,21 +30,24 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
-          <h1 className="text-3xl font-bold text-gray-900">
-            llama-swap Configuration Builder
-          </h1>
-          <p className="mt-2 text-gray-600">
-            Create and customize your llama-swap configuration with live examples and validation
-          </p>
-        </div>
-      </div>
+    <div className="min-h-screen flex flex-col">
+      <Navigation />
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+      <main className="flex-1">
+        {/* Page Title Section */}
+        <div className="bg-white">
+          <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+            <h1 className="text-3xl font-bold text-gray-900">
+              llama-swap Configuration Builder
+            </h1>
+            <p className="mt-2 text-gray-600">
+              Create and customize your llama-swap configuration with live examples and validation
+            </p>
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
         <div className="space-y-6">
           {/* Controls */}
           <div className="bg-white rounded-lg shadow p-6">
@@ -93,15 +98,11 @@ function App() {
               </div>
             </div>
           </div>
-
-          {/* Back to docs */}
-          <div className="text-center">
-            <a href="/" className="text-blue-600 hover:text-blue-800">
-              ← Back to Documentation
-            </a>
-          </div>
         </div>
-      </div>
+        </div>
+      </main>
+
+      <Footer />
     </div>
   )
 }

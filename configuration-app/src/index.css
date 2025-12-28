@@ -1,6 +1,14 @@
+/* IMPORTANT: Keep @theme synchronized with /src/css/styles.css */
 @import "tailwindcss";
 
 @theme {
   --color-primary: #3b82f6;
   --color-secondary: #8b5cf6;
+  --font-sans: system-ui, -apple-system, sans-serif;
+  --font-mono: "Monaco", "Courier New", monospace;
+}
+
+/* Match main site body styles */
+body {
+  @apply text-gray-900 bg-white;
 }
