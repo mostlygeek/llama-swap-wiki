@@ -167,6 +167,8 @@ When updating these components, apply changes to both locations and rebuild Reac
 - Commit both `CLAUDE.md` and `CLAUDE.local.md` (if used)
 - `.gitignore` excludes: `node_modules/`, `_site/`, `dist/`, `configuration-app/dist/`
 - Build output is regenerated, never commit `_site/`
+- Never mention Claude or Co-authored-by.
+- Keep commit messages clear and to the point
 
 ## Deployment
 

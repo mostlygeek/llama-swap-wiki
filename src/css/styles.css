@@ -7,23 +7,65 @@
   --font-mono: "Monaco", "Courier New", monospace;
 }
 
-/* Custom styles */
+/* Base styles */
 body {
   @apply text-gray-900 bg-white;
 }
 
+/* Prose typography */
 .prose {
   @apply max-w-none;
+  line-height: 1.75;
+}
+
+.prose h1 {
+  @apply text-4xl font-bold text-gray-900 mb-4 mt-0;
+}
+
+.prose h2 {
+  @apply text-2xl font-semibold text-gray-900 mt-10 mb-4 pb-2 border-b border-gray-200;
+}
+
+.prose h3 {
+  @apply text-xl font-semibold text-gray-900 mt-8 mb-3;
+}
+
+.prose p {
+  @apply mb-4 text-gray-700;
+}
+
+.prose a {
+  @apply text-blue-600 hover:text-blue-800 underline;
+}
+
+.prose strong {
+  @apply font-semibold text-gray-900;
+}
+
+.prose ul {
+  @apply list-disc pl-6 mb-4 space-y-2;
+}
+
+.prose ol {
+  @apply list-decimal pl-6 mb-4 space-y-2;
+}
+
+.prose li {
+  @apply text-gray-700;
 }
 
 .prose code {
-  @apply bg-gray-100 px-1.5 py-0.5 rounded text-sm;
+  @apply bg-gray-100 px-1.5 py-0.5 rounded text-sm font-mono;
 }
 
 .prose pre {
-  @apply bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto;
+  @apply bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto mb-6;
 }
 
 .prose pre code {
-  @apply bg-transparent p-0;
+  @apply bg-transparent p-0 text-sm;
+}
+
+.prose blockquote {
+  @apply border-l-4 border-gray-300 pl-4 italic text-gray-600 my-4;
 }
