@@ -1,0 +1,23 @@
+{
+  "name": "llama-swap-wiki",
+  "version": "1.0.0",
+  "description": "Documentation site for llama-swap",
+  "type": "module",
+  "scripts": {
+    "dev": "eleventy --serve --watch --port=8989",
+    "build": "npm run build:react && eleventy",
+    "build:react": "cd configuration-app && npm run build",
+    "dev:react": "cd configuration-app && npm run dev",
+    "install:all": "npm install && cd configuration-app && npm install"
+  },
+  "keywords": ["llama-swap", "documentation", "11ty", "eleventy"],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@11ty/eleventy": "^3.1.2",
+    "@11ty/eleventy-plugin-syntaxhighlight": "^5.0.0",
+    "@tailwindcss/postcss": "^4.0.0",
+    "postcss": "^8.4.0",
+    "tailwindcss": "^4.0.0"
+  }
+}
