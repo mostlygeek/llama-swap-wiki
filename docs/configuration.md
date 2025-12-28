@@ -1,6 +1,8 @@
 ---
 title: Configuration Builder
 description: Interactive configuration builder for llama-swap
+aside: false
+pageClass: wide-page
 ---
 
 # Configuration Builder

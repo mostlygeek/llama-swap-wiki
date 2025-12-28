@@ -21,6 +21,17 @@
   padding-top: 0;
 }
 
+/* Wide page layout for ConfigBuilder */
+.wide-page .VPDoc .container {
+  max-width: none !important;
+}
+
+.wide-page .VPDoc .content {
+  max-width: none !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
 /* Prism.js syntax highlighting theme for YAML display */
 .token.comment,
 .token.prolog,
