@@ -12,14 +12,13 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <div class="flex flex-col h-full min-h-0">
-    <h2 class="text-lg font-semibold text-gray-900 mb-4 flex-shrink-0">I want to:</h2>
-
-    <div class="flex-1 space-y-2 overflow-y-auto min-h-0">
+  <div>
+    <h2 class="text-base font-semibold text-gray-900">I want to:</h2>
+    <div class="space-y-1.5">
       <label
         v-for="feature in features"
         :key="feature.id"
-        class="flex items-center gap-3 p-2.5 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50/50 cursor-pointer transition-colors"
+        class="flex items-center gap-2 py-1.5 px-2 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50/50 cursor-pointer transition-colors"
       >
         <input
           type="checkbox"
@@ -31,10 +30,10 @@ const emit = defineEmits<{
       </label>
     </div>
 
-    <div class="mt-4 pt-4 border-t border-gray-200 flex-shrink-0">
+    <div class="mt-3 pt-3 border-t border-gray-200">
       <button
         @click="emit('download')"
-        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
+        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
       >
         <svg
           class="w-4 h-4"

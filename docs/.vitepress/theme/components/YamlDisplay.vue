@@ -72,7 +72,7 @@ function setLineRef(lineNum: number, el: HTMLDivElement | null) {
 
 <template>
   <div ref="containerRef" class="h-full overflow-auto bg-gray-50">
-    <pre class="p-4 text-sm font-mono leading-relaxed">
+    <pre class="p-3 text-sm font-mono leading-tight whitespace-nowrap">
       <div
         v-for="(lineHtml, index) in highlightedLines"
         :key="index"

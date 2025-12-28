@@ -14,6 +14,13 @@
   --vp-c-brand-3: #1d4ed8;
 }
 
+/* Remove VitePress default h2 border in config builder */
+.config-builder-container h2 {
+  border-top: none;
+  margin: 0;
+  padding-top: 0;
+}
+
 /* Prism.js syntax highlighting theme for YAML display */
 .token.comment,
 .token.prolog,
