@@ -24,18 +24,6 @@ function handleFeatureToggle(featureId: string) {
   selectedFeatures.value = newSet;
 }
 
-function handleDownload() {
-  const blob = new Blob([configResult.value.yaml], { type: "text/yaml" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "config.yaml";
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-}
-
 function handleCopy() {
   navigator.clipboard.writeText(configResult.value.yaml);
 }
@@ -49,7 +37,6 @@ function handleCopy() {
         <FeatureSelector
           :selected-features="selectedFeatures"
           @toggle="handleFeatureToggle"
-          @download="handleDownload"
         />
       </div>
 

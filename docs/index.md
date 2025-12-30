@@ -3,8 +3,8 @@ layout: home
 
 hero:
   name: llama-swap
-  text: Hot-swap between local LLM models
-  tagline: A lightweight proxy for dynamic LLM model switching without restarting your apps
+  #text: Hot-swap between local AI models
+  tagline: Reliable model swapping for any local OpenAI and Anthropic api compatible server
   actions:
     - theme: brand
       text: Get Started
@@ -31,7 +31,7 @@ features:
 brew tap mostlygeek/llama-swap && brew install llama-swap
 ```
 
-See [Getting Started](/getting-started) for Windows, Linux binaries, and Docker.
+See [Getting Started](/getting-started) for Docker, OSX, Windows and Linux installation docs.
 
 ## Quick Example
 

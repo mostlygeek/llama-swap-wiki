@@ -4,29 +4,29 @@ Documentation website for [llama-swap](https://github.com/mostlygeek/llama-swap)
 
 ## Technology Stack
 
-- **11ty v3.1.2** - Static site generator
+- **VitePress 1.5+** - Static site generator with Vue 3
+- **Vue 3** - Interactive components with Composition API
 - **Tailwind CSS v4.0** - Styling with CSS-first configuration
-- **Vite 7** + **React 19** - Interactive configuration builder
-- **TypeScript** - Type-safe React components
-- **Monaco Editor** - YAML editor with syntax highlighting
+- **TypeScript** - Type-safe components
+- **Prism.js** - YAML syntax highlighting
 
 ## Project Structure
 
 ```
 llama-swap-wiki/
-├── src/                    # 11ty source files
-│   ├── _includes/         # Layout templates (Nunjucks)
-│   ├── _data/            # Data files (fetches from GitHub)
-│   ├── css/              # Tailwind CSS
-│   ├── index.md          # Home page
-│   ├── getting-started.md
-│   └── examples.md
-├── configuration-app/      # React app for /configuration
-│   └── src/
-│       ├── components/    # React components
-│       ├── App.tsx
-│       └── examples.ts    # Configuration examples
-└── _site/                 # Build output (generated)
+├── docs/                           # VitePress content root
+│   ├── .vitepress/
+│   │   ├── config.ts              # VitePress configuration
+│   │   └── theme/
+│   │       ├── index.ts           # Theme entry (registers components)
+│   │       ├── style.css          # Tailwind v4 + Prism.js styles
+│   │       ├── components/        # Vue components
+│   │       └── lib/               # Config builder logic
+│   ├── index.md                   # Homepage
+│   ├── getting-started.md         # Installation guide
+│   ├── examples.md                # Configuration examples
+│   └── configuration.md           # Interactive config builder
+└── package.json
 ```
 
 ## Development
@@ -38,83 +38,44 @@ llama-swap-wiki/
 
 ### Setup
 
-Install dependencies for both 11ty and the React app:
-
 ```bash
-npm run install:all
-```
-
-Or install separately:
-
-```bash
-# 11ty dependencies
 npm install
-
-# React app dependencies
-cd configuration-app && npm install
 ```
 
 ### Development Mode
-
-Run the 11ty dev server:
 
 ```bash
 npm run dev
 ```
 
-Visit http://localhost:8989
-
-To work on the React configuration app separately:
-
-```bash
-npm run dev:react
-```
-
-Visit http://localhost:5173 for the React app dev server.
+The dev server will start on an available port (shown in terminal).
 
 ### Build
-
-Build the complete site:
 
 ```bash
 npm run build
 ```
 
-This will:
-1. Build the React configuration app → `src/configuration/`
-2. Build the 11ty site → `_site/`
+Output: `docs/.vitepress/dist/`
 
-The output in `_site/` is ready to deploy.
+### Preview Production Build
 
-## Content
+```bash
+npm run preview
+```
 
-The site pulls content from the [llama-swap GitHub repository](https://github.com/mostlygeek/llama-swap):
-
-- `config.example.yaml` - Example configuration (fetched at build time)
-- `README.md` - Project information (fetched at build time)
+Visit http://localhost:4173
 
 ## Features
 
-### Main Site (11ty)
 - Homepage with project overview
 - Getting Started guide with installation instructions
 - Configuration examples with syntax highlighting
-- Responsive navigation
-- Tailwind CSS v4 styling
-
-### Configuration Builder (/configuration)
-- Interactive YAML editor (Monaco Editor)
-- 7+ example configurations:
-  - Minimal setup
-  - Multiple models
-  - Docker/Podman
-  - Macros
-  - Groups & TTL
-  - Aliases & API keys
-  - Complete real-world example
-- Download generated config.yaml
-- Live editing with syntax highlighting
-- Configuration tips and best practices
+- Interactive Configuration Builder with:
+  - Feature selection checkboxes
+  - Live YAML preview with syntax highlighting
+  - Line highlighting when features are toggled
+  - Download and copy functionality
 
 ## Deployment
 
@@ -133,7 +94,7 @@ npm run build
 
 ### Output Directory
 ```
-_site/
+docs/.vitepress/dist/
 ```
 
 ### Environment

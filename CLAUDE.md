@@ -2,6 +2,8 @@
 
 This is the documentation website for [llama-swap](https://github.com/mostlygeek/llama-swap), built with VitePress and Vue.
 
+llama-swap is configured by a single yaml file with the canonical example located at https://raw.githubusercontent.com/mostlygeek/llama-swap/refs/heads/main/config.example.yaml. Fetch this source and use it for when creating examples.
+
 ## Project Overview
 
 **Purpose**: Static documentation site with an interactive configuration builder
@@ -38,21 +40,25 @@ llama-swap-wiki/
 - `npm run dev` - Start VitePress dev server (auto-selects available port)
 - `npm run build` - Build static site → `docs/.vitepress/dist/`
 - `npm run preview` - Preview built site at http://localhost:4173
+- `npm run typecheck` - Run TypeScript type checking (run this after making changes)
 
 ## Technology Details
 
 ### VitePress
+
 - Content root: `docs/` directory
 - Output: `docs/.vitepress/dist/`
 - Uses Vue 3 for components
 - Markdown with Vue component support
 
 ### Tailwind CSS v4.0
+
 - Configuration is in CSS using `@theme` directive in `docs/.vitepress/theme/style.css`
 - Use `@import "tailwindcss"` syntax
 - Integrated via `@tailwindcss/vite` plugin in VitePress config
 
 ### Vue Configuration App
+
 - Components in `docs/.vitepress/theme/components/`
 - Embedded in markdown pages using `<ComponentName />`
 - Uses Prism.js for YAML syntax highlighting
@@ -61,6 +67,7 @@ llama-swap-wiki/
 ## Code Style
 
 ### Markdown Pages
+
 - Use VitePress frontmatter:
   ```yaml
   ---
@@ -72,12 +79,14 @@ llama-swap-wiki/
 - Embed Vue components directly: `<ConfigBuilder />`
 
 ### Vue Components
+
 - TypeScript with Composition API (`<script setup lang="ts">`)
 - Props defined with `defineProps<{...}>()`
 - Emits defined with `defineEmits<{...}>()`
 - Tailwind utility classes for styling
 
 ### CSS
+
 - All styling uses Tailwind v4 utility classes
 - Custom theme variables in `@theme` block
 - VitePress theme variables overridden for brand colors
@@ -86,19 +95,25 @@ llama-swap-wiki/
 ## Vue Components
 
 ### ConfigBuilder.vue
+
 Main component that orchestrates the configuration builder:
+
 - State: `selectedFeatures`, `highlightedFeature`
 - Handles feature toggle, download, and copy functionality
 - Two-column layout: sidebar + YAML display
 
 ### FeatureSelector.vue
+
 Checkbox list for selecting configuration features:
+
 - Props: `selectedFeatures: Set<string>`
 - Emits: `toggle`, `download`
 - 7 features: ttl, macros, groups, apiKeys, docker, hooks, env
 
 ### YamlDisplay.vue
+
 Syntax-highlighted YAML display with line highlighting:
+
 - Props: `value`, `lineFeatures`, `highlightedFeature`
 - Uses Prism.js for highlighting
 - Animated yellow highlight when features are added
@@ -122,15 +137,18 @@ npm run preview
 ## Common Issues
 
 ### CSS Not Loading
+
 - Check `docs/.vitepress/theme/style.css` has `@import "tailwindcss"`
 - Verify `@tailwindcss/vite` is in VitePress config
 
 ### Component Not Rendering
+
 - Ensure component is registered in `docs/.vitepress/theme/index.ts`
 - Check component import path is correct
 - Vue components must be in `.vue` files
 
 ### Build Errors
+
 - Run `npm install` to ensure dependencies are installed
 - Check TypeScript errors in Vue components
 
@@ -146,13 +164,6 @@ npm run preview
 **Build command**: `npm run build`
 **Output directory**: `docs/.vitepress/dist/`
 **Node version**: 18+
-
-The site is static and can be deployed to:
-- GitHub Pages
-- Netlify
-- Vercel
-- Cloudflare Pages
-- Any static hosting
 
 ## External Resources
 

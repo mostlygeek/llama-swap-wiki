@@ -1,15 +1,18 @@
 ---
 title: Configuration Examples
 description: Learn llama-swap configuration through practical examples
+outline: [2, 3]
 ---
+
+<script setup>
+import { data } from './examples.data'
+</script>
 
 # Configuration Examples
 
-Learn how to configure llama-swap through practical examples.
+llama-swap is designed to be powerful and has many feature for you to customize your deployment. It is also designed for complexity to be incremental.
 
-## Minimal Configuration
-
-The simplest possible setup:
+Here is the most minimal configuration.
 
 ```yaml
 models:
@@ -17,21 +20,25 @@ models:
     cmd: llama-server --port ${PORT} --model /path/to/model.gguf
 ```
 
-## Multiple Models
+Everything else is optional. Add groups to run multiple models at once, use macros to reduce repetition, set ttl values to automatically unload models and many more options.
 
-Swap between multiple models:
+## Frequently used options
+
+These are the most frequently used configuration options.
+
+### Multiple Models
+
+Define several models and llama-swap will swap between them on demand. Only one model runs at a time by default, freeing up GPU memory when switching.
 
 ```yaml
 models:
   llama-8b:
     cmd: llama-server --port ${PORT} --model /models/llama-8b.gguf
     name: "Llama 3.1 8B"
-    description: "Fast general-purpose model"
 
   qwen-32b:
     cmd: llama-server --port ${PORT} --model /models/qwen-32b.gguf
     name: "Qwen 2.5 Coder 32B"
-    description: "Specialized coding model with large context"
 
   phi-3:
     cmd: llama-server --port ${PORT} --model /models/phi-3.gguf
@@ -40,79 +47,9 @@ models:
 
 When you request a model, llama-swap will unload the currently running model and start the new one.
 
-## Global Settings
+### Using Macros
 
-Configure llama-swap behavior:
-
-```yaml
-# Health check timeout (seconds, default: 120)
-healthCheckTimeout: 180
-
-# Log level: debug, info, warn, error (default: info)
-logLevel: info
-
-# Log timestamp format (default: "" disabled)
-# Valid: ansic, unixdate, rfc3339, kitchen, stamp, etc.
-logTimeFormat: "rfc3339"
-
-# What to log to stdout: proxy, upstream, both, none (default: proxy)
-logToStdout: "proxy"
-
-# Starting port for ${PORT} macro (default: 5800)
-startPort: 10000
-
-# Max metrics kept in memory (default: 1000)
-metricsMaxInMemory: 1000
-
-# Send loading status in reasoning field (default: false)
-sendLoadingState: true
-
-# Include aliases in /v1/models listing (default: false)
-includeAliasesInList: true
-
-models:
-  my-model:
-    cmd: llama-server --port ${PORT} --model /path/to/model.gguf
-```
-
-## API Key Authentication
-
-Require API keys for inference endpoints:
-
-```yaml
-apiKeys:
-  - "sk-your-secret-key"
-  - "sk-another-key-for-different-user"
-
-models:
-  my-model:
-    cmd: llama-server --port ${PORT} --model /path/to/model.gguf
-```
-
-When `apiKeys` is set, all requests must include a valid key in the `Authorization: Bearer <key>` header.
-
-## Docker/Podman Setup
-
-Run inference servers in containers:
-
-```yaml
-models:
-  docker-llama:
-    proxy: "http://127.0.0.1:${PORT}"
-    cmd: |
-      docker run --name ${MODEL_ID}
-      --init --rm -p ${PORT}:8080
-      -v /mnt/models:/models
-      ghcr.io/ggml-org/llama.cpp:server
-      --model '/models/llama-8b.gguf'
-    cmdStop: docker stop ${MODEL_ID}
-```
-
-The `cmdStop` ensures graceful container shutdown. The `${MODEL_ID}` macro gives you the model's key name.
-
-## Using Macros
-
-Reduce repetition with macros:
+Macros let you define reusable values to avoid repeating paths, flags, or settings across models.
 
 ```yaml
 macros:
@@ -154,37 +91,39 @@ models:
     cmd: ${llama-bin} --port ${PORT} ${default-args} --model /models/model.gguf
 ```
 
-## Groups for Advanced Control
+### Model Groups
 
-### Exclusive Group (Default Behavior)
+Groups control which models can run together and how they interact. Use them to keep embedding models always loaded, run small models side-by-side, or ensure large models get exclusive GPU access.
+
+#### Exclusive Group (Default Behavior)
 
 Only one model runs at a time:
 
 ```yaml
 groups:
   main:
-    swap: true       # Only one model at a time
-    exclusive: true  # Unload other groups when loading
+    swap: true # Only one model at a time
+    exclusive: true # Unload other groups when loading
     members:
       - llama-8b
       - qwen-32b
 ```
 
-### Persistent Models
+#### Persistent Models
 
-Models that never get unloaded:
+Models that stay loaded and can't be unloaded by other groups:
 
 ```yaml
 groups:
   embeddings:
-    swap: false        # All models can run together
-    exclusive: false   # Don't unload other groups
-    persistent: true   # Other groups can't unload these
+    swap: false # All models can run together
+    exclusive: false # Don't unload other groups
+    persistent: true # Other groups can't unload these
     members:
       - embedding-model
 ```
 
-### Mixed Setup
+#### Mixed Setup
 
 ```yaml
 groups:
@@ -205,20 +144,9 @@ groups:
       - llama-70b
 ```
 
-## TTL Auto-Unloading
+### Aliases
 
-Automatically unload models after inactivity:
-
-```yaml
-models:
-  temp-model:
-    cmd: llama-server --port ${PORT} --model /models/model.gguf
-    ttl: 300  # Unload after 5 minutes of inactivity
-```
-
-## Aliases
-
-Serve models under different names:
+Make your models available under different names. Useful for compatibility with clients that expect specific model names like OpenAI's.
 
 ```yaml
 models:
@@ -231,96 +159,20 @@ models:
 
 Now clients can request `gpt-4o-mini` and get your local llama-8b model.
 
-## Unlisted Models
+### TTL Auto-Unloading
 
-Hide models from the `/v1/models` API while still allowing direct requests:
-
-```yaml
-models:
-  internal-model:
-    cmd: llama-server --port ${PORT} --model /models/internal.gguf
-    unlisted: true  # Won't appear in model listings
-```
-
-## Model Name Override
-
-Use a different model name when proxying to upstream:
+Free up resources automatically when a model hasn't been used for a while. Good for shared machines or when running many models.
 
 ```yaml
 models:
-  my-qwen:
-    cmd: ollama serve
-    proxy: http://127.0.0.1:11434
-    useModelName: "qwen:qwq"  # Send this name to upstream instead of "my-qwen"
-```
-
-## Custom Health Check Endpoint
-
-Configure the endpoint used to check if a model is ready:
-
-```yaml
-models:
-  custom-server:
-    cmd: ./my-server --port ${PORT}
-    checkEndpoint: /api/health  # Default is /health
-
-  no-health-check:
-    cmd: ./simple-server --port ${PORT}
-    checkEndpoint: none  # Skip health checking entirely
-```
-
-## Model Metadata
-
-Add custom metadata that appears in `/v1/models` responses:
-
-```yaml
-models:
-  llama-8b:
-    cmd: llama-server --port ${PORT} --model /models/llama-8b.gguf
-    metadata:
-      context_length: 8192
-      quantization: "Q4_K_M"
-      capabilities:
-        - "chat"
-        - "completion"
-      note: "Running ${MODEL_ID} on port ${PORT}"
-```
-
-Macros work inside metadata values.
-
-## Concurrency Limits
-
-Limit parallel requests to a model:
-
-```yaml
-models:
-  limited-model:
+  temp-model:
     cmd: llama-server --port ${PORT} --model /models/model.gguf
-    concurrencyLimit: 5  # Max 5 parallel requests (default: 10)
+    ttl: 300 # Unload after 5 minutes of inactivity
 ```
 
-Requests exceeding the limit receive HTTP 429 Too Many Requests.
+### Preload on Startup
 
-## Per-Model Loading State
-
-Override the global `sendLoadingState` setting for specific models:
-
-```yaml
-sendLoadingState: true  # Global setting
-
-models:
-  with-loading:
-    cmd: llama-server --port ${PORT} --model /models/slow.gguf
-    # Uses global sendLoadingState: true
-
-  without-loading:
-    cmd: llama-server --port ${PORT} --model /models/fast.gguf
-    sendLoadingState: false  # Override for this model
-```
-
-## Preload on Startup
-
-Load models when llama-swap starts:
+Have models ready immediately when llama-swap starts, avoiding the first-request delay.
 
 ```yaml
 hooks:
@@ -336,9 +188,9 @@ models:
     cmd: llama-server --port ${PORT} --model /models/embeddings.gguf
 ```
 
-## Environment Variables
+### Environment Variables
 
-Pass environment variables to models:
+Set environment variables for a model's process. Useful for GPU selection, thread counts, or any runtime configuration.
 
 ```yaml
 models:
@@ -349,21 +201,46 @@ models:
       - "OMP_NUM_THREADS=8"
 ```
 
-## Request Filtering
+### Docker/Podman Setup
 
-Strip parameters from requests (server-side enforcement):
+Run inference servers in containers. llama-swap manages the container lifecycle just like local processes.
 
 ```yaml
 models:
-  fixed-temp:
-    cmd: llama-server --port ${PORT} --model /models/model.gguf
-    filters:
-      stripParams: "temperature, top_p, top_k"
+  docker-llama:
+    proxy: "http://127.0.0.1:${PORT}"
+    cmd: |
+      docker run --name ${MODEL_ID}
+      --init --rm -p ${PORT}:8080
+      -v /mnt/models:/models
+      ghcr.io/ggml-org/llama.cpp:server
+      --model '/models/llama-8b.gguf'
+    cmdStop: docker stop ${MODEL_ID}
 ```
 
-## Peers (Remote Models)
+The `cmdStop` ensures graceful container shutdown. The `${MODEL_ID}` macro gives you the model's key name.
 
-Connect to other llama-swap instances or external APIs:
+## Advanced Configuration
+
+### API Key Authentication
+
+Protect your endpoints with API keys. All inference requests must include a valid key.
+
+```yaml
+apiKeys:
+  - "sk-your-secret-key"
+  - "sk-another-key-for-different-user"
+
+models:
+  my-model:
+    cmd: llama-server --port ${PORT} --model /path/to/model.gguf
+```
+
+When `apiKeys` is set, all requests must include a valid key in the `Authorization: Bearer <key>` header.
+
+### Peers (Remote Models)
+
+Connect to other llama-swap instances or external APIs. Requests are proxied transparently, so clients see all models in one place.
 
 ```yaml
 peers:
@@ -386,79 +263,187 @@ peers:
 
 Peer models appear in your `/v1/models` listing and requests are proxied transparently.
 
-## Complete Example
+These options provide fine-grained control over model behavior.
 
-A real-world configuration combining multiple features:
+### Request Filtering
+
+Remove specific parameters from incoming requests. Useful to enforce server-side sampling settings that clients can't override.
 
 ```yaml
-logLevel: info
-healthCheckTimeout: 180
-startPort: 10000
-sendLoadingState: true
-
-apiKeys:
-  - "sk-local-development-key"
-
-macros:
-  llama-bin: "/usr/local/bin/llama-server"
-  models-dir: "/mnt/nvme/models"
-
 models:
-  # Fast model for drafting
-  draft:
-    cmd: ${llama-bin} --port ${PORT} --model ${models-dir}/qwen-0.5b.gguf
-    name: "Qwen 2.5 Coder 0.5B (Draft)"
-    description: "Small fast model for quick responses"
-    ttl: 600
-
-  # Main coding model
-  coder:
-    cmd: ${llama-bin} --port ${PORT} --model ${models-dir}/qwen-32b.gguf
-    name: "Qwen 2.5 Coder 32B"
-    description: "Primary coding assistant"
-    aliases:
-      - "gpt-4o"
-    env:
-      - "CUDA_VISIBLE_DEVICES=0,1"
-    metadata:
-      context_length: 32768
-      specialization: "code"
-
-  # Embedding model (always loaded)
-  embeddings:
-    cmd: ${llama-bin} --port ${PORT} --model ${models-dir}/nomic-embed.gguf --embedding
-    name: "Nomic Embed"
-
-groups:
-  main-models:
-    swap: true
-    exclusive: true
-    members:
-      - draft
-      - coder
-
-  persistent:
-    swap: false
-    exclusive: false
-    persistent: true
-    members:
-      - embeddings
-
-hooks:
-  on_startup:
-    preload:
-      - embeddings
-
-peers:
-  openrouter:
-    proxy: https://openrouter.ai/api
-    apiKey: sk-your-openrouter-key
-    models:
-      - anthropic/claude-3-sonnet
+  fixed-temp:
+    cmd: llama-server --port ${PORT} --model /models/model.gguf
+    filters:
+      stripParams: "temperature, top_p, top_k"
 ```
 
-## Full Configuration Reference
+### Loading State Notifications
 
-For a complete reference with all available options, see the [config.example.yaml](https://github.com/mostlygeek/llama-swap/blob/main/config.example.yaml) file in the GitHub repository.
+Show users that a model is loading in chat UIs that support the reasoning field. Helpful when models take time to start.
+
+```yaml
+sendLoadingState: true # Global setting
+
+models:
+  with-loading:
+    cmd: llama-server --port ${PORT} --model /models/slow.gguf
+    # Uses global sendLoadingState: true
+
+  without-loading:
+    cmd: llama-server --port ${PORT} --model /models/fast.gguf
+    sendLoadingState: false # Override for this model
+```
+
+### Unlisted Models
+
+Keep models accessible but hidden from the model list. Good for internal or experimental models you don't want clients to discover.
+
+```yaml
+models:
+  internal-model:
+    cmd: llama-server --port ${PORT} --model /models/internal.gguf
+    unlisted: true # Won't appear in model listings
+```
+
+### Model Name Override
+
+Send a different model name to the upstream server. Useful when proxying to Ollama or other servers that expect specific names.
+
+```yaml
+models:
+  my-qwen:
+    cmd: ollama serve
+    proxy: http://127.0.0.1:11434
+    useModelName: "qwen:qwq" # Send this name to upstream instead of "my-qwen"
+```
+
+### Model Metadata
+
+Attach extra information to models that appears in the `/v1/models` API. Useful for clients that need to know context sizes, capabilities, or other details.
+
+```yaml
+models:
+  llama-8b:
+    cmd: llama-server --port ${PORT} --model /models/llama-8b.gguf
+    metadata:
+      context_length: 8192
+      quantization: "Q4_K_M"
+      capabilities:
+        - "chat"
+        - "completion"
+      note: "Running ${MODEL_ID} on port ${PORT}"
+```
+
+Macros work inside metadata values.
+
+### Include Aliases in Model List
+
+By default, aliases don't appear as separate entries in `/v1/models`. Enable this to list them individually.
+
+```yaml
+includeAliasesInList: true
+
+models:
+  llama-8b:
+    cmd: llama-server --port ${PORT} --model /models/llama-8b.gguf
+    aliases:
+      - "gpt-4o-mini"
+```
+
+## Troubleshooting & Tuning
+
+These settings help diagnose issues and tune performance.
+
+### Logging Configuration
+
+When things aren't working, increase log verbosity or include upstream server output to see what's happening.
+
+```yaml
+# Log level: debug, info, warn, error (default: info)
+logLevel: debug
+
+# Log timestamp format (default: "" disabled)
+# Valid: ansic, unixdate, rfc3339, kitchen, stamp, etc.
+logTimeFormat: "rfc3339"
+
+# What to log to stdout: proxy, upstream, both, none (default: proxy)
+# Use "upstream" or "both" to see inference server output
+logToStdout: "both"
+
+models:
+  my-model:
+    cmd: llama-server --port ${PORT} --model /path/to/model.gguf
+```
+
+### Health Check Configuration
+
+Configure health check behavior including custom endpoints, timeouts, and disabling checks entirely.
+
+```yaml
+# Health check timeout (seconds, default: 120, minimum: 15)
+healthCheckTimeout: 300
+
+models:
+  # Custom health endpoint (default is /health)
+  custom-server:
+    cmd: ./my-server --port ${PORT}
+    checkEndpoint: /api/health
+
+  # Skip health checking for faster startup
+  no-health-check:
+    cmd: ./simple-server --port ${PORT}
+    checkEndpoint: none
+
+  # Large model with extended timeout
+  large-model:
+    cmd: llama-server --port ${PORT} --model /models/70b-model.gguf
+```
+
+### Concurrency Limits
+
+Prevent a model from being overwhelmed by too many parallel requests. Excess requests get a 429 response.
+
+```yaml
+models:
+  limited-model:
+    cmd: llama-server --port ${PORT} --model /models/model.gguf
+    concurrencyLimit: 5 # Max 5 parallel requests (default: 10)
+```
+
+Requests exceeding the limit receive HTTP 429 Too Many Requests.
+
+### Metrics Memory Limit
+
+llama-swap keeps request metrics in memory. Reduce this if you're running on a memory-constrained system.
+
+```yaml
+# Max metrics kept in memory (default: 1000)
+metricsMaxInMemory: 500
+
+models:
+  my-model:
+    cmd: llama-server --port ${PORT} --model /path/to/model.gguf
+```
+
+### Port Configuration
+
+The `${PORT}` macro auto-assigns ports starting from a configurable base. Change it if the default range conflicts with other services.
+
+```yaml
+# Starting port for ${PORT} macro (default: 5800)
+startPort: 10000
+
+models:
+  model-a:
+    cmd: llama-server --port ${PORT} --model /models/a.gguf # Gets port 10000
+  model-b:
+    cmd: llama-server --port ${PORT} --model /models/b.gguf # Gets port 10001
+```
+
+## Full Example
+
+This is the canonical [config.example.yaml](https://github.com/mostlygeek/llama-swap/blob/main/config.example.yaml) from the github repo. It is always the most up to date reference of what llama-swap supports:
+
+<ConfigExample :yaml="data.configExample" />
 
 You can also use the [Interactive Configuration Tool](/configuration) to build your config file with live validation.

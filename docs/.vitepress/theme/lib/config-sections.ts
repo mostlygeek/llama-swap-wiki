@@ -1,104 +1,88 @@
 export interface Feature {
-  id: string
-  label: string
+  id: string;
+  label: string;
 }
 
 export const features: Feature[] = [
-  { id: 'ttl', label: 'Automatically unload idle models' },
-  { id: 'macros', label: 'Reduce repetition with macros' },
-  { id: 'groups', label: 'Run multiple models at the same time' },
-  { id: 'apiKeys', label: 'Require API key authentication' },
-  { id: 'docker', label: 'Run models in docker containers' },
-  { id: 'hooks', label: 'Preload models on startup' },
-  { id: 'env', label: 'Set environment variables like CUDA_VISIBLE_DEVICES' }
-]
+  { id: "ttl", label: "Unload idle models" },
+  { id: "macros", label: "Create reusable snippets" },
+  { id: "groups", label: "Run multiple models simultaneously" },
+  { id: "apiKeys", label: "Require API keys" },
+  { id: "docker", label: "Use Docker" },
+  { id: "hooks", label: "Auto load models" },
+  { id: "env", label: "Set environment vars" },
+];
 
 // Build base YAML dynamically based on selected features
-export function buildBaseYaml(options: {
-  macros: boolean
-  ttl: boolean
-  env: boolean
-  apiKeys: boolean
-}): string {
-  const lines: string[] = []
+export function buildBaseYaml(options: { macros: boolean; ttl: boolean; env: boolean; apiKeys: boolean }): string {
+  const lines: string[] = [];
 
-  lines.push('# llama-swap configuration')
-  lines.push('# Models are loaded on-demand and swapped automatically')
+  lines.push("# llama-swap configuration");
+  lines.push("# Models are loaded on-demand and swapped automatically");
 
   // Add apiKeys section if enabled (right after header comments)
   if (options.apiKeys) {
-    lines.push('')
-    lines.push('# API Keys - require authentication for requests')
-    lines.push('apiKeys:')
-    lines.push('  - sk-api-key-one')
-    lines.push('  - sk-api-key-two')
-    lines.push('  - sk-api-key-three')
+    lines.push("");
+    lines.push("# API Keys - require authentication for requests");
+    lines.push("apiKeys:");
+    lines.push("  - sk-api-key-one");
+    lines.push("  - sk-api-key-two");
+    lines.push("  - sk-api-key-three");
   }
 
   // Add macros section if enabled
   if (options.macros) {
-    lines.push('')
-    lines.push('# Macros - reusable values substituted with ${macro-name}')
-    lines.push('macros:')
-    lines.push('  llama-bin: /usr/local/bin/llama-server')
-    lines.push('  model-path: /path/to/models')
+    lines.push("");
+    lines.push("# Macros - reusable values substituted with ${macro-name}");
+    lines.push("macros:");
+    lines.push("  llama-bin: /usr/local/bin/llama-server");
+    lines.push("  model-path: /path/to/models");
   }
 
-  lines.push('')
-  lines.push('models:')
+  lines.push("");
+  lines.push("models:");
 
   // First model
-  lines.push('  # First model - a fast general-purpose model')
-  lines.push('  llama-8b:')
+  lines.push("  # First model - a fast general-purpose model");
+  lines.push("  llama-8b:");
   if (options.env) {
-    lines.push('    env:')
-    lines.push('      - CUDA_VISIBLE_DEVICES=0  # Use first GPU')
+    lines.push("    env:");
+    lines.push("      - CUDA_VISIBLE_DEVICES=0  # Use first GPU");
   }
   if (options.macros) {
-    lines.push(
-      '    cmd: ${llama-bin} --port ${PORT} --model ${model-path}/llama-8b.gguf'
-    )
+    lines.push("    cmd: ${llama-bin} --port ${PORT} --model ${model-path}/llama-8b.gguf");
   } else {
-    lines.push(
-      '    cmd: llama-server --port ${PORT} --model /models/llama-8b.gguf'
-    )
+    lines.push("    cmd: llama-server --port ${PORT} --model /models/llama-8b.gguf");
   }
-  lines.push('    name: Llama 3.1 8B')
+  lines.push("    name: Llama 3.1 8B");
   if (options.ttl) {
-    lines.push('    ttl: 600  # Auto-unload after 10 minutes of inactivity')
+    lines.push("    ttl: 600  # Auto-unload after 10 minutes of inactivity");
   }
 
-  lines.push('')
+  lines.push("");
 
   // Second model
-  lines.push('  # Second model - a larger coding-focused model')
-  lines.push('  qwen-32b:')
+  lines.push("  # Second model - a larger coding-focused model");
+  lines.push("  qwen-32b:");
   if (options.env) {
-    lines.push('    env:')
-    lines.push('      - CUDA_VISIBLE_DEVICES=1  # Use second GPU')
+    lines.push("    env:");
+    lines.push("      - CUDA_VISIBLE_DEVICES=1  # Use second GPU");
   }
   if (options.macros) {
-    lines.push(
-      '    cmd: ${llama-bin} --port ${PORT} --model ${model-path}/qwen-32b.gguf'
-    )
+    lines.push("    cmd: ${llama-bin} --port ${PORT} --model ${model-path}/qwen-32b.gguf");
   } else {
-    lines.push(
-      '    cmd: llama-server --port ${PORT} --model /models/qwen-32b.gguf'
-    )
+    lines.push("    cmd: llama-server --port ${PORT} --model /models/qwen-32b.gguf");
   }
-  lines.push('    name: Qwen 2.5 Coder 32B')
+  lines.push("    name: Qwen 2.5 Coder 32B");
   if (options.ttl) {
-    lines.push('    ttl: 600  # Auto-unload after 10 minutes of inactivity')
+    lines.push("    ttl: 600  # Auto-unload after 10 minutes of inactivity");
   }
 
-  return lines.join('\n')
+  return lines.join("\n");
 }
 
 // Feature-specific YAML snippets with comments
-export const featureSnippets: Record<
-  string,
-  { models?: string; topLevel?: string }
-> = {
+export const featureSnippets: Record<string, { models?: string; topLevel?: string }> = {
   docker: {
     models: `
   # Docker model - uses proxy to connect to containerized server
@@ -111,7 +95,7 @@ export const featureSnippets: Record<
         ghcr.io/ggml-org/llama.cpp:server
         --model '/models/llama-8b.gguf'
     # Command to gracefully stop the container
-    cmdStop: docker stop \${MODEL_ID}`
+    cmdStop: docker stop \${MODEL_ID}`,
   },
 
   groups: {
@@ -124,7 +108,7 @@ groups:
     exclusive: true  # Unload models from other groups when this group is active
     members:
       - llama-8b
-      - qwen-32b`
+      - qwen-32b`,
   },
 
   hooks: {
@@ -135,6 +119,6 @@ hooks:
   on_startup:
     # Preload these models when llama-swap starts
     preload:
-      - llama-8b`
-  }
-}
+      - llama-8b`,
+  },
+};
