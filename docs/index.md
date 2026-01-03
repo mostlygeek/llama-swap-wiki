@@ -5,35 +5,85 @@ hero:
   name: llama-swap
   #text: Hot-swap between local AI models
   tagline: Reliable model swapping for any local OpenAI and Anthropic api compatible server
-  actions:
-    - theme: brand
-      text: Get Started
-      link: /getting-started
-    - theme: alt
-      text: Configuration Builder
-      link: /configuration
-    - theme: alt
-      text: View on GitHub
-      link: https://github.com/mostlygeek/llama-swap
-
-features:
-  - title: On-demand Loading
-    details: Models are loaded only when requested, saving GPU memory
-  - title: Zero Downtime
-    details: Switch between models seamlessly without restarting services
-  - title: OpenAI Compatible
-    details: Works with any app using the OpenAI API format
 ---
 
-## Install
+# About
+
+- no strings attached: no tracking, MIT licensed
+- design philsophy: one binary, one configuration file, no dependencies
+- reliable, on demand loading of AI servers (llama.cpp, vllm, whisper, stable-diffusion.cpp, etc)
+
+## Features
+
+(list from github.com/mostlygeek/llama-swap readme)
+
+## Installation
+
+llama-swap is available on Linux, Mac and Windows. You can use on of the available methods or build it yourself.
+
+::: tabs
+
+== Docker
+
+Images are built nightly and are available for multiple hardware platforms: CUDA, Intel, Vulkan, MUSA, and CPU inference.
 
 ```bash
-brew tap mostlygeek/llama-swap && brew install llama-swap
+# Pull the container for your hardware
+docker pull ghcr.io/mostlygeek/llama-swap:cuda
+docker pull ghcr.io/mostlygeek/llama-swap:vulkan
+docker pull ghcr.io/mostlygeek/llama-swap:intel
+docker pull ghcr.io/mostlygeek/llama-swap:musa
+docker pull ghcr.io/mostlygeek/llama-swap:cpu
+
+# Pull specific versions of llama-swap and llama.cpp
+docker pull ghcr.io/mostlygeek/llama-swap:v179-cuda-b7565
+
+# Run with a custom configuration
+docker run -v ./config.yaml:/app/config.yaml ghcr.io/mostlygeek/llama-swap
 ```
 
-See [Getting Started](/getting-started) for Docker, OSX, Windows and Linux installation docs.
+All available images can be found on the GitHub [packages](https://github.com/mostlygeek/llama-swap/pkgs/container/llama-swap) page.
 
-## Quick Example
+== macOS (Homebrew)
+
+```bash
+brew tap mostlygeek/llama-swap
+brew install llama-swap
+```
+
+== Windows
+
+```powershell
+winget install llama-swap
+```
+
+== Binary
+
+Pre-built binaries are automatically built from the `main` branch. Download them from the [releases](https://github.com/mostlygeek/llama-swap/releases) page.
+
+Available platforms:
+
+- **Linux**: x86_64, ARM64
+- **macOS**: Intel, Apple Silicon
+- **Windows**: x86_64
+- **FreeBSD**
+
+== Source
+
+Build a custom binary from source:
+
+```bash
+git clone https://github.com/mostlygeek/llama-swap.git
+cd llama-swap
+make build
+
+# Build for a custom OS and architecture
+GOOS=linux GOARCH=arm64 make build
+```
+
+:::
+
+## Configuration
 
 Create `config.yaml`:
 
@@ -45,18 +95,4 @@ models:
     cmd: llama-server --port ${PORT} --model /models/qwen-coder.gguf
 ```
 
-Start llama-swap:
-
-```bash
-llama-swap -config config.yaml
-```
-
-Make requests using the OpenAI API format:
-
-```bash
-curl http://localhost:8080/v1/chat/completions \
-  -H "Content-Type: application/json" \
-  -d '{"model": "llama-8b", "messages": [{"role": "user", "content": "Hello!"}]}'
-```
-
-llama-swap handles starting servers, health checks, and graceful switching between models.
+- go to the tour

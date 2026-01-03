@@ -12,7 +12,6 @@ export default defineConfig({
     nav: [
       { text: "Home", link: "/" },
       { text: "Tour", link: "/tour/" },
-      { text: "Installation", link: "/getting-started" },
       { text: "Examples", link: "/examples" },
     ],
 

@@ -1,13 +1,11 @@
 ---
-title: Getting Started
+title: Installation
 description: Install and configure llama-swap in minutes
 ---
 
-# Getting Started
+# Installation
 
-Get up and running with llama-swap in just a few minutes.
-
-## Installation
+llama-swap is available on Linux, Mac and Windows. You can use on of the available methods or build it yourself.
 
 ::: tabs
 
@@ -50,6 +48,7 @@ winget install llama-swap
 Pre-built binaries are automatically built from the `main` branch. Download them from the [releases](https://github.com/mostlygeek/llama-swap/releases) page.
 
 Available platforms:
+
 - **Linux**: x86_64, ARM64
 - **macOS**: Intel, Apple Silicon
 - **Windows**: x86_64
@@ -69,65 +68,6 @@ GOOS=linux GOARCH=arm64 make build
 ```
 
 :::
-
-## Basic Configuration
-
-Create a `config.yaml` file with your first model:
-
-```yaml
-models:
-  smollm2:
-    # warning: downloads about 270MB
-    cmd: llama-server --port ${PORT} -hf bartowski/SmolLM2-360M-Instruct-GGUF
-```
-
-The `${PORT}` macro is automatically assigned (starting from 5800 by default). The `-hf` flag tells llama-server to automatically download the model when it starts.
-
-## Start llama-swap
-
-```bash
-$ llama-swap -config config.yaml
-llama-swap listening on http://:8080
-```
-
-## Make Your First Request
-
-Use the OpenAI-compatible API:
-
-```bash
-curl -sN http://localhost:8080/v1/chat/completions \
-  -H "Content-Type: application/json" \
-  -d '{
-    "model": "smollm2", "stream": true,
-    "messages": [{"role": "user", "content": "Hello!"}]
-  }'
-```
-
-llama-swap will automatically:
-
-1. Start the llama-server for the `smollm2` model
-2. Wait for it to be ready (health check)
-3. Forward your request to the upstream server
-4. Stream back the reponse
-
-## Web UI
-
-Visit `http://localhost:8080/ui`.
-
-On the UI dashboard you can:
-
-- View request history
-- See performance metrics
-- Stream logs in real-time
-- Start and stop models manually
-
-### Models page
-
-![Web UI Dashboard](/webui.png)
-
-### Activity page
-
-![Activity View](/activity.png)
 
 ## Next Steps
 
