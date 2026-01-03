@@ -58,4 +58,4 @@ cmd: |
     ${gpu-flags}
 ```
 
-Note: `${PORT}` is a built-in variable, not a macro. It's always replaced with the assigned port number.
+Note: `${PORT}` is an automatic macro managed by llama-swap. Automatic macros are reserved names that cannot be defined by users in the configuration file.

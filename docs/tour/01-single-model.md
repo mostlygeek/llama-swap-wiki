@@ -32,12 +32,13 @@ curl http://localhost:8080/v1/chat/completions \
 ### Model Properties
 
 - **`name`** - A human-readable display name (optional, shown in `/v1/models`)
-- **`env`** - Environment variables to set when launching the model
 - **`cmd`** - The command to start the backend server
 
-### The `${PORT}` Variable
+### The `${PORT}` Automatic Macro
 
 llama-swap automatically assigns an available port for each model. Use `${PORT}` in your command and llama-swap will substitute it with the actual port number.
+
+`${PORT}` is an **automatic macro** - a reserved name managed by llama-swap that cannot be defined in your configuration file.
 
 ### Multi-line Commands
 

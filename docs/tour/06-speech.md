@@ -11,7 +11,7 @@ next:
 
 # Speech Models
 
-Let's add speech capabilities: Whisper for speech-to-text (STT) and Kokoro for text-to-speech (TTS).
+llama-swap also supports speech capabilities via Whisper for speech-to-text (STT) and Kokoro for text-to-speech (TTS). You can use any upstream speech server that supports the `/v1/audio/transcriptions` and `/v1/audio/speech` endpoints.
 
 ## Configuration
 
@@ -42,9 +42,11 @@ kokoro-tts:
 
 Some models run best in Docker containers. Notice:
 
-- **`${MODEL_ID}`** - A unique identifier for this model instance, useful for naming containers
-- **`-p ${PORT}:8880`** - Maps llama-swap's assigned port to the container's internal port
+- **`${MODEL_ID}`** - An automatic macro containing the model's ID, useful for naming containers
+- **`-p ${PORT}:8880`** - Maps the port from the `${PORT}` automatic macro to the container's internal port
 - **`cmdStop`** - Command to gracefully stop the model (required for Docker since `--rm` containers need explicit stopping)
+
+Both `${PORT}` and `${MODEL_ID}` are automatic macros managed by llama-swap. These are reserved names that cannot be defined by users in the configuration file.
 
 ### Model Name Override
 
