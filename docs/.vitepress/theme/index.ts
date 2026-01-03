@@ -4,6 +4,7 @@ import './style.css'
 import ConfigBuilder from './components/ConfigBuilder.vue'
 import ConfigExample from './components/ConfigExample.vue'
 import TourConfig from './components/TourConfig.vue'
+import ConfigExplorer from './components/ConfigExplorer.vue'
 import { enhanceAppWithTabs } from 'vitepress-plugin-tabs/client'
 
 export default {
@@ -13,5 +14,6 @@ export default {
     app.component('ConfigBuilder', ConfigBuilder)
     app.component('ConfigExample', ConfigExample)
     app.component('TourConfig', TourConfig)
+    app.component('ConfigExplorer', ConfigExplorer)
   }
 }

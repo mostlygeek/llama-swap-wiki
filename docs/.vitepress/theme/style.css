@@ -273,3 +273,122 @@
 .legend-color.added {
   background: rgb(34, 197, 94);
 }
+
+/* Config Explorer Component Styles */
+.config-explorer {
+  display: flex;
+  gap: 0;
+  margin: 1rem 0;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 0.5rem;
+  overflow: hidden;
+  min-height: 500px;
+}
+
+.config-explorer .yaml-panel {
+  flex: 1;
+  max-height: 700px;
+  overflow: auto;
+  background: var(--vp-code-block-bg);
+}
+
+.config-explorer .yaml-panel pre {
+  margin: 0;
+  padding: 1rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.config-explorer .explorer-line {
+  padding: 0 1rem;
+  margin: 0 -1rem;
+  white-space: pre;
+  transition: background-color 0.15s ease;
+}
+
+.config-explorer .explorer-line .line-number {
+  display: inline-block;
+  width: 2.5rem;
+  text-align: right;
+  margin-right: 1rem;
+  color: var(--vp-c-text-3);
+  user-select: none;
+}
+
+.config-explorer .explorer-line.has-concept {
+  cursor: pointer;
+  border-left: 3px solid transparent;
+  padding-left: calc(1rem - 3px);
+}
+
+.config-explorer .explorer-line.has-concept:hover,
+.config-explorer .explorer-line.is-hovered {
+  background: rgba(59, 130, 246, 0.1);
+  border-left-color: var(--vp-c-brand-1);
+}
+
+.dark .config-explorer .explorer-line.has-concept:hover,
+.dark .config-explorer .explorer-line.is-hovered {
+  background: rgba(59, 130, 246, 0.15);
+}
+
+.config-explorer .description-panel {
+  width: 320px;
+  min-width: 320px;
+  padding: 1.5rem;
+  background: var(--vp-c-bg-soft);
+  border-left: 1px solid var(--vp-c-divider);
+  overflow-y: auto;
+}
+
+.config-explorer .description-panel h3 {
+  margin: 0 0 0.75rem 0;
+  padding: 0;
+  border: none;
+  font-size: 1.1rem;
+  color: var(--vp-c-text-1);
+}
+
+.config-explorer .description-panel p {
+  margin: 0 0 1rem 0;
+  color: var(--vp-c-text-2);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.config-explorer .description-panel .hint {
+  font-size: 0.85rem;
+  color: var(--vp-c-text-3);
+}
+
+.config-explorer .description-panel .hint code {
+  background: var(--vp-c-bg-mute);
+  padding: 0.1rem 0.3rem;
+  border-radius: 3px;
+  font-size: 0.85em;
+}
+
+.config-explorer .concept-example {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--vp-c-divider);
+}
+
+.config-explorer .concept-example strong {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--vp-c-text-2);
+}
+
+.config-explorer .example-code {
+  background: var(--vp-code-block-bg);
+  padding: 0.75rem;
+  border-radius: 0.375rem;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  overflow-x: auto;
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
