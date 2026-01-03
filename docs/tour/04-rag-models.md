@@ -1,5 +1,5 @@
 ---
-title: RAG Models
+title: Beyond LLMs
 description: Add embedding and reranker models for retrieval-augmented generation
 prev:
   text: 3. Using Macros
@@ -9,9 +9,9 @@ next:
   link: /tour/05-groups
 ---
 
-# RAG Models
+# Beyond LLMs
 
-For retrieval-augmented generation (RAG), you need embedding and reranker models alongside your chat models. Let's add them.
+You can run more than just LLMs. llama-swap also supports embedding and reranking API endpoints. This is useful for retrieval-augmented generation (RAG) applications.
 
 ## Configuration
 

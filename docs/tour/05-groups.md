@@ -11,7 +11,7 @@ next:
 
 # Model Groups
 
-For RAG applications, you need embedding, reranking, and chat models to work together without swapping each other out. Groups solve this.
+Continually swapping models in and out of memory can add long wait times to requests. llama-swap's Groups makes it easy to keep multiple models loaded at the same time.
 
 ## Configuration
 
@@ -51,7 +51,7 @@ With the `rag` group configured:
 
 ### Memory Considerations
 
-Running multiple models requires more GPU memory. The embedding and reranker models are typically small (a few GB each), making them good candidates for concurrent loading.
+Running multiple models requires more memory. The embedding and reranker models are typically small, making them good candidates for concurrent loading.
 
 ### Use Cases
 
@@ -61,8 +61,8 @@ Running multiple models requires more GPU memory. The embedding and reranker mod
 
 ## Group Behavior Summary
 
-| Scenario | Result |
-|----------|--------|
-| Request model in same group | Starts without stopping others |
+| Scenario                    | Result                                    |
+| --------------------------- | ----------------------------------------- |
+| Request model in same group | Starts without stopping others            |
 | Request model outside group | Stops all group members, starts new model |
-| Request non-grouped model | Normal swap behavior |
+| Request non-grouped model   | Normal swap behavior                      |

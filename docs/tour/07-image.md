@@ -4,6 +4,9 @@ description: Add image generation with aliases for OpenAI compatibility
 prev:
   text: 6. Speech (STT/TTS)
   link: /tour/06-speech
+next:
+  text: 8. Environment Variables
+  link: /tour/08-environment
 ---
 
 # Image Generation
@@ -55,16 +58,6 @@ checkEndpoint: /
 
 The sd-server uses `/` as its health endpoint, so we override the default `/health`.
 
-## Tour Complete!
+## What We've Learned
 
-You've now seen all the major configuration features:
-
-1. **Basic model setup** - `cmd`, `env`, `name`
-2. **Multiple models** - Automatic swapping
-3. **Macros** - DRY configuration
-4. **RAG models** - Embeddings, reranking, `unlisted`
-5. **Groups** - Keep models loaded together with `swap: false`
-6. **Speech** - `checkEndpoint`, `cmdStop`, `useModelName`, Docker
-7. **Image generation** - `aliases` for compatibility
-
-For the complete reference configuration, see the [Examples](/examples) page.
+Model aliases provide flexibility for client compatibility. Next, we'll look at controlling the runtime environment for each model.
