@@ -15,19 +15,7 @@ Let's start with the simplest possible configuration: a single model.
 
 ## Configuration
 
-```yaml
-models:
-  llama-8B:
-    name: "Llama 8B"
-    env:
-      - CUDA_VISIBLE_DEVICES=0
-    cmd: |
-      /path/to/llama-server
-        --host 127.0.0.1 --port ${PORT}
-        --model /path/to/models/Meta-Llama-3.1-8B-Instruct-Q8_0.gguf
-        --ctx-size 32768
-        -ngl 99
-```
+<TourConfig :step="1" />
 
 ## What's New
 

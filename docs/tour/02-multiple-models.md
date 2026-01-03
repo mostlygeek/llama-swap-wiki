@@ -15,41 +15,7 @@ Now let's add more models. llama-swap will automatically swap between them based
 
 ## Configuration
 
-```yaml
-models:
-  llama-8B:
-    name: "Llama 8B"
-    env:
-      - CUDA_VISIBLE_DEVICES=0
-    cmd: |
-      /path/to/llama-server
-        --host 127.0.0.1 --port ${PORT}
-        --model /path/to/models/Meta-Llama-3.1-8B-Instruct-Q8_0.gguf
-        --ctx-size 32768
-        -ngl 99
-
-  qwen3-4B:
-    name: "Qwen3 4B"
-    env:
-      - CUDA_VISIBLE_DEVICES=0
-    cmd: |
-      /path/to/llama-server
-        --host 127.0.0.1 --port ${PORT}
-        --model /path/to/models/Qwen3-4B-Instruct-Q8_0.gguf
-        --ctx-size 40960
-        -ngl 99
-
-  gpt-oss-20B:
-    name: "GPT-OSS 20B"
-    env:
-      - CUDA_VISIBLE_DEVICES=0
-    cmd: |
-      /path/to/llama-server
-        --host 127.0.0.1 --port ${PORT}
-        --model /path/to/models/gpt-oss-20B-Q8_0.gguf
-        --ctx-size 8192
-        -ngl 99
-```
+<TourConfig :step="2" />
 
 ## What's New
 

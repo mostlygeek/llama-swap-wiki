@@ -15,41 +15,7 @@ You've probably noticed the repetition in our config - every model has similar s
 
 ## Configuration
 
-```yaml
-macros:
-  llama-server: |
-    /path/to/llama-server
-      --host 127.0.0.1 --port ${PORT}
-      -ngl 99
-
-models:
-  llama-8B:
-    name: "Llama 8B"
-    env:
-      - CUDA_VISIBLE_DEVICES=0
-    cmd: |
-      ${llama-server}
-        --model /path/to/models/Meta-Llama-3.1-8B-Instruct-Q8_0.gguf
-        --ctx-size 32768
-
-  qwen3-4B:
-    name: "Qwen3 4B"
-    env:
-      - CUDA_VISIBLE_DEVICES=0
-    cmd: |
-      ${llama-server}
-        --model /path/to/models/Qwen3-4B-Instruct-Q8_0.gguf
-        --ctx-size 40960
-
-  gpt-oss-20B:
-    name: "GPT-OSS 20B"
-    env:
-      - CUDA_VISIBLE_DEVICES=0
-    cmd: |
-      ${llama-server}
-        --model /path/to/models/gpt-oss-20B-Q8_0.gguf
-        --ctx-size 8192
-```
+<TourConfig :step="3" />
 
 ## What's New
 

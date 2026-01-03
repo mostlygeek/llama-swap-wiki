@@ -15,62 +15,7 @@ For retrieval-augmented generation (RAG), you need embedding and reranker models
 
 ## Configuration
 
-```yaml
-macros:
-  llama-server: |
-    /path/to/llama-server
-      --host 127.0.0.1 --port ${PORT}
-      -ngl 99
-
-models:
-  llama-8B:
-    name: "Llama 8B"
-    env:
-      - CUDA_VISIBLE_DEVICES=0
-    cmd: |
-      ${llama-server}
-        --model /path/to/models/Meta-Llama-3.1-8B-Instruct-Q8_0.gguf
-        --ctx-size 32768
-
-  qwen3-4B:
-    name: "Qwen3 4B"
-    env:
-      - CUDA_VISIBLE_DEVICES=0
-    cmd: |
-      ${llama-server}
-        --model /path/to/models/Qwen3-4B-Instruct-Q8_0.gguf
-        --ctx-size 40960
-
-  gpt-oss-20B:
-    name: "GPT-OSS 20B"
-    env:
-      - CUDA_VISIBLE_DEVICES=0
-    cmd: |
-      ${llama-server}
-        --model /path/to/models/gpt-oss-20B-Q8_0.gguf
-        --ctx-size 8192
-
-  embedding:
-    unlisted: true
-    env:
-      - CUDA_VISIBLE_DEVICES=0
-    cmd: |
-      ${llama-server}
-        --model /path/to/models/nomic-embed-text-v1.5.Q8_0.gguf
-        --ctx-size 8192
-        --batch-size 8192
-        --embeddings
-
-  reranker:
-    unlisted: true
-    env:
-      - CUDA_VISIBLE_DEVICES=0
-    cmd: |
-      ${llama-server}
-        --model /path/to/models/bge-reranker-v2-m3-Q4_K_M.gguf
-        --ctx-size 8192
-        --reranking
-```
+<TourConfig :step="4" />
 
 ## What's New
 
