@@ -1,21 +1,51 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import Prism from 'prismjs'
-import 'prismjs/components/prism-yaml'
+import { ref, watch, onMounted } from 'vue'
+import { codeToTokensWithThemes } from 'shiki'
+import type { ThemedTokenWithVariants } from 'shiki'
 
 const props = defineProps<{
   yaml: string | null
 }>()
 
-const highlightedYaml = computed(() => {
-  if (!props.yaml) return ''
-  return Prism.highlight(props.yaml, Prism.languages.yaml, 'yaml')
-})
+const tokens = ref<ThemedTokenWithVariants[][]>([])
+const isLoading = ref(true)
+
+function tokenStyle(token: ThemedTokenWithVariants): Record<string, string> {
+  const light = token.variants['github-light']?.color
+  const dark = token.variants['github-dark']?.color
+  if (light && dark) {
+    return { '--light': light, '--dark': dark } as Record<string, string>
+  }
+  return {}
+}
+
+async function highlight(yaml: string | null) {
+  if (!yaml) {
+    tokens.value = []
+    isLoading.value = false
+    return
+  }
+  isLoading.value = true
+  tokens.value = await codeToTokensWithThemes(yaml, {
+    lang: 'yaml',
+    themes: { 'github-light': 'github-light', 'github-dark': 'github-dark' }
+  })
+  isLoading.value = false
+}
+
+onMounted(() => highlight(props.yaml))
+watch(() => props.yaml, highlight)
 </script>
 
 <template>
   <div v-if="yaml" class="config-example">
-    <pre class="language-yaml"><code v-html="highlightedYaml"></code></pre>
+    <pre v-if="isLoading" class="language-yaml"><code>Loading...</code></pre>
+    <pre v-else class="language-yaml"><code><template v-for="(line, lineIdx) in tokens" :key="lineIdx"><span
+          v-for="(token, i) in line"
+          :key="i"
+          class="shiki-token"
+          :style="tokenStyle(token)"
+        >{{ token.content }}</span>{{ lineIdx < tokens.length - 1 ? '\n' : '' }}</template></code></pre>
   </div>
   <div v-else class="config-example-fallback">
     <p>

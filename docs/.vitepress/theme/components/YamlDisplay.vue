@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, nextTick, onMounted } from 'vue'
-import Prism from 'prismjs'
-import 'prismjs/components/prism-yaml'
+import { codeToTokensWithThemes } from 'shiki'
+import type { ThemedTokenWithVariants } from 'shiki'
 
 const props = defineProps<{
   value: string
@@ -12,11 +12,29 @@ const props = defineProps<{
 const fadingOut = ref(false)
 const containerRef = ref<HTMLDivElement | null>(null)
 const highlightedLineRefs = ref<Map<number, HTMLDivElement>>(new Map())
+const tokens = ref<ThemedTokenWithVariants[][]>([])
+const isLoading = ref(true)
 
-const highlightedLines = computed(() => {
-  const highlighted = Prism.highlight(props.value, Prism.languages.yaml, 'yaml')
-  return highlighted.split('\n')
-})
+function tokenStyle(token: ThemedTokenWithVariants): Record<string, string> {
+  const light = token.variants['github-light']?.color
+  const dark = token.variants['github-dark']?.color
+  if (light && dark) {
+    return { '--light': light, '--dark': dark } as Record<string, string>
+  }
+  return {}
+}
+
+async function highlight(yaml: string) {
+  isLoading.value = true
+  tokens.value = await codeToTokensWithThemes(yaml, {
+    lang: 'yaml',
+    themes: { 'github-light': 'github-light', 'github-dark': 'github-dark' }
+  })
+  isLoading.value = false
+}
+
+onMounted(() => highlight(props.value))
+watch(() => props.value, highlight)
 
 const firstHighlightedLine = computed(() => {
   if (!props.highlightedFeature) return null
@@ -72,8 +90,9 @@ function setLineRef(lineNum: number, el: HTMLDivElement | null) {
 
 <template>
   <div ref="containerRef" class="h-full overflow-auto bg-gray-50 dark:bg-gray-900">
-    <pre class="p-3 text-sm font-mono leading-tight whitespace-nowrap"><div
-        v-for="(lineHtml, index) in highlightedLines"
+    <pre v-if="isLoading" class="p-3 text-sm font-mono">Loading...</pre>
+    <pre v-else class="p-3 text-sm font-mono leading-tight whitespace-nowrap"><div
+        v-for="(lineTokens, index) in tokens"
         :key="index"
         :ref="(el) => setLineRef(index + 1, el as HTMLDivElement)"
         :class="[
@@ -81,6 +100,11 @@ function setLineRef(lineNum: number, el: HTMLDivElement | null) {
           fadingOut ? 'duration-[2000ms]' : 'duration-0',
           isHighlighted(index + 1) && !fadingOut ? 'bg-yellow-200 dark:bg-yellow-900/50' : 'bg-transparent'
         ]"
-      ><span class="select-none text-gray-400 dark:text-gray-500 w-8 inline-block text-right mr-4">{{ index + 1 }}</span><span class="whitespace-pre" v-html="lineHtml || ' '"></span></div></pre>
+      ><span class="select-none text-gray-400 dark:text-gray-500 w-8 inline-block text-right mr-4">{{ index + 1 }}</span><span class="whitespace-pre"><span
+          v-for="(token, i) in lineTokens"
+          :key="i"
+          class="shiki-token"
+          :style="tokenStyle(token)"
+        >{{ token.content }}</span><span v-if="!lineTokens.length"> </span></span></div></pre>
   </div>
 </template>
