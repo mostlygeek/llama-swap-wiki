@@ -14,6 +14,14 @@ macros:
   # server defaults
   default_strip_params: "temperature, min_p, top_k, top_p"
 
+groups:
+  rag:
+    swap: false
+    members:
+      - reranker
+      - embedding
+      - gpt-oss-20B
+
 models:
   llama-8B:
     name: "Llama 8B"
@@ -30,6 +38,7 @@ models:
     name: "GPT-OSS 20B"
     filters:
       strip_params: "${default_strip_params}"
+    ttl: 300
     cmd: |
       ${server-latest}
       --model /path/to/models/
@@ -118,11 +127,3 @@ models:
       -m /path/to/models/bge-reranker-v2-m3-Q4_K_M.gguf
       --ctx-size 8192
       --reranking
-
-groups:
-  rag:
-    swap: false
-    members:
-      - reranker
-      - embedding
-      - gpt-oss-20B
