@@ -1,0 +1,130 @@
+healthCheckTimeout: 300
+logLevel: debug
+logTimeFormat: "kitchen"
+
+macros:
+  server-latest: |
+    /path/to/llama-server/llama-server-latest
+    --host 0.0.0.0 --port ${PORT}
+    -ngl 999 -ngld 999
+    --no-mmap
+    --no-warmup
+
+  # remove params from JSON requests to maintain
+  # server defaults
+  default_strip_params: "temperature, min_p, top_k, top_p"
+
+groups:
+  rag:
+    swap: false
+    exclusive: true
+    members:
+      - reranker
+      - embedding
+      - gpt-oss-20B
+
+models:
+  llama-8B:
+    name: "Llama 8B"
+    env:
+      - CUDA_VISIBLE_DEVICES=GPU-6f0
+    cmd: |
+      ${server-latest}
+      --ctx-size 32766
+      --model /path/to/models/Meta-Llama-3.1-8B-Instruct-Q8_0.gguf
+
+  gpt-oss-20B:
+    env:
+      - CUDA_VISIBLE_DEVICES=GPU-f10
+    name: "GPT-OSS 20B"
+    filters:
+      strip_params: "${default_strip_params}"
+    ttl: 300
+    cmd: |
+      ${server-latest}
+      --model /path/to/models/
+      --temp 1.0
+      --top-k 0
+      --top-p 1.0
+      --jinja
+      --ctx-size 6553
+
+  qwen3-4B-huihui:
+    env:
+      - CUDA_VISIBLE_DEVICES=GPU-f10
+    filters:
+      strip_params: ${default_strip_params}
+    name: "qwen3-abliterated HuiHui"
+    sendLoadingState: false
+    cmd: |
+      ${server-latest}
+      --model /path/to/models/Huihui-Qwen3-4B-Instruct-2507-abliterated.Q8_0.gguf
+      --ctx-size 40960
+      --temp 0.6 --min-p 0 --top-k 20 --top-p 0.95
+
+  kokoro-tts:
+    name: "kokoro TTS"
+    # rewrite model name in request as kokoro expects specific values
+    useModelName: "tts-1"
+    cmd: |
+      docker run --rm --name ${MODEL_ID}
+        -p ${PORT}:8880
+        --gpus 'device=0'
+        --env 'API_LOG_LEVEL=INFO'
+      ghcr.io/remsky/kokoro-fastapi-gpu:latest
+    cmdStop: docker stop ${MODEL_ID}
+
+  # image generation
+  z-image:
+    env:
+      - CUDA_VISIBLE_DEVICES=GPU-6f
+    name: "z-image"
+    checkEndpoint: /
+    cmd: |
+      /path/to/sd-server
+      --listen-port ${PORT}
+      --diffusion-fa
+      --diffusion-model /path/to/models/z_image_turbo-Q8_0.gguf
+      --vae /path/to/models/ae.safetensors
+      --llm /path/to/models/Qwen3-4B-Instruct-2507-Q8_0.gguf
+
+      # default generation params
+      --cfg-scale 1.0
+      --height 768 --width 768
+      --steps 8
+      --seed "-1"
+    aliases: [gpt-image-1, dall-e-2, dall-e-3, gpt-image-1-mini, gpt-image-1.5]
+
+  whisper:
+    env:
+      - "CUDA_VISIBLE_DEVICES=GPU-eb1"
+    description: "Audio transcriptions"
+    checkEndpoint: /v1/audio/transcriptions/
+    unlisted: true
+    cmd: |
+      /path/to/llama-server/whisper-server-30cf30c
+        --host 127.0.0.1 --port ${PORT}
+        -m /path/to/models/ggml-large-v3-turbo-q8_0.bin
+        --flash-attn
+        --request-path /v1/audio/transcriptions --inference-path ""
+
+  embedding:
+    env:
+      - "CUDA_VISIBLE_DEVICES=GPU-eb1"
+    unlisted: true
+    cmd: |
+      ${server-latest}
+      -m /path/to/models/nomic-embed-text-v1.5.Q8_0.gguf
+      --ctx-size 8192 --batch-size 8192
+      --rope-scaling yarn
+      --rope-freq-scale 0.75
+      --embeddings
+
+  reranker:
+    env:
+      - "CUDA_VISIBLE_DEVICES=GPU-eb1"
+    cmd: |
+      ${server-latest}
+      -m /path/to/models/bge-reranker-v2-m3-Q4_K_M.gguf
+      --ctx-size 8192
+      --reranking

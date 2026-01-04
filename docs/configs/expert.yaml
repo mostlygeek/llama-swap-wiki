@@ -1,0 +1,108 @@
+# Expert llama-swap configuration
+# Full-featured example with peers, hooks, and advanced options
+
+healthCheckTimeout: 500
+logLevel: info
+logTimeFormat: "kitchen"
+sendLoadingState: true
+includeAliasesInList: true
+
+# API key authentication
+apiKeys:
+  - "sk-local-dev-key"
+
+# Reusable command templates
+macros:
+  server-latest: |
+    /opt/llama-server/llama-server
+    --host 127.0.0.1 --port ${PORT}
+    -ngl 999 --no-mmap --no-warmup
+
+  default_strip_params: "temperature, min_p, top_k, top_p"
+
+# Model groups for resource management
+groups:
+  gpu-0:
+    swap: true
+    exclusive: true
+    members:
+      - llama-70B
+      - qwen-32B
+
+  always-on:
+    swap: false
+    persistent: true
+    members:
+      - embedding
+      - reranker
+
+# Hooks for lifecycle events
+hooks:
+  on_startup:
+    preload:
+      - embedding
+      - reranker
+
+# External API providers
+peers:
+  openrouter:
+    host: https://openrouter.ai/api
+    apiKey: "${OPENROUTER_API_KEY}"
+    models:
+      - claude-3-opus
+      - gpt-4-turbo
+
+models:
+  llama-70B:
+    name: "Llama 3.1 70B Instruct"
+    env:
+      - CUDA_VISIBLE_DEVICES=0,1
+    ttl: 600
+    concurrencyLimit: 4
+    filters:
+      strip_params: "${default_strip_params}"
+    metadata:
+      parameters: "70B"
+      quantization: "Q4_K_M"
+    cmd: |
+      ${server-latest}
+      --model /models/Meta-Llama-3.1-70B-Instruct-Q4_K_M.gguf
+      --ctx-size 32768
+      --tensor-split 0.5,0.5
+
+  qwen-32B:
+    name: "Qwen 2.5 32B"
+    env:
+      - CUDA_VISIBLE_DEVICES=0,1
+    ttl: 300
+    cmd: |
+      ${server-latest}
+      --model /models/Qwen2.5-32B-Instruct-Q4_K_M.gguf
+      --ctx-size 16384
+
+  kokoro-tts:
+    name: "Kokoro TTS"
+    useModelName: "tts-1"
+    aliases: [tts-1-hd]
+    cmd: |
+      docker run --rm --name ${MODEL_ID}
+        -p ${PORT}:8880
+        --gpus 'device=2'
+      ghcr.io/remsky/kokoro-fastapi-gpu:latest
+    cmdStop: docker stop ${MODEL_ID}
+
+  embedding:
+    unlisted: true
+    cmd: |
+      ${server-latest}
+      -m /models/nomic-embed-text-v1.5.Q8_0.gguf
+      --ctx-size 8192 --batch-size 8192
+      --embeddings
+
+  reranker:
+    unlisted: true
+    cmd: |
+      ${server-latest}
+      -m /models/bge-reranker-v2-m3-Q4_K_M.gguf
+      --ctx-size 8192
+      --reranking
