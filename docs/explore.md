@@ -9,4 +9,20 @@ pageClass: wide-page
 
 Explore the llama-swap configuration format. Hover over any highlighted line to learn what it does.
 
-<ConfigExplorer />
+::: tabs
+
+== Basic
+
+The basic configuration
+
+<ConfigExplorer config="basic" />
+
+== Advanced
+
+<ConfigExplorer config="advanced" />
+
+== Expert
+
+<ConfigExplorer config="expert" />
+
+:::

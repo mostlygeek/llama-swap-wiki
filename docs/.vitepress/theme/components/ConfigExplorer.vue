@@ -1,53 +1,68 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { codeToTokensWithThemes } from 'shiki'
-import type { ThemedTokenWithVariants } from 'shiki'
-import { findConceptForLine, type ConfigConcept } from '../lib/config-concepts'
-import configYaml from '../../../config.example.yaml?raw'
+import { ref, onMounted } from "vue";
+import { codeToTokensWithThemes } from "shiki";
+import type { ThemedTokenWithVariants } from "shiki";
+import { findConceptForLine, type ConfigConcept } from "../lib/config-concepts";
+import basicYaml from "../../../configs/basic.yaml?raw";
+import advancedYaml from "../../../configs/advanced.yaml?raw";
+import expertYaml from "../../../configs/expert.yaml?raw";
+
+// Map config names to YAML content
+const configMap: Record<string, string> = {
+  basic: basicYaml,
+  advanced: advancedYaml,
+  expert: expertYaml,
+};
 
 interface Line {
-  raw: string
-  tokens: ThemedTokenWithVariants[]
-  concept: ConfigConcept | null
-  lineNum: number
+  raw: string;
+  tokens: ThemedTokenWithVariants[];
+  concept: ConfigConcept | null;
+  lineNum: number;
 }
 
-// Current hovered concept (null = show default intro)
-const hoveredConcept = ref<ConfigConcept | null>(null)
-const lines = ref<Line[]>([])
-const isLoading = ref(true)
+const props = defineProps<{
+  config?: "basic" | "advanced" | "expert";
+}>();
+
+const hoveredConcept = ref<ConfigConcept | null>(null);
+const lines = ref<Line[]>([]);
+const isLoading = ref(true);
+
+// Get YAML content based on prop
+const yamlContent = configMap[props.config ?? "basic"] ?? basicYaml;
 
 // Get CSS style for a token with light/dark variants
 function tokenStyle(token: ThemedTokenWithVariants): Record<string, string> {
-  const light = token.variants['github-light']?.color
-  const dark = token.variants['github-dark']?.color
+  const light = token.variants["github-light"]?.color;
+  const dark = token.variants["github-dark"]?.color;
   if (light && dark) {
-    return { '--light': light, '--dark': dark } as Record<string, string>
+    return { "--light": light, "--dark": dark } as Record<string, string>;
   }
-  return {}
+  return {};
 }
 
 // Initialize Shiki and tokenize YAML with both themes
 onMounted(async () => {
-  const tokens = await codeToTokensWithThemes(configYaml, {
-    lang: 'yaml',
-    themes: { 'github-light': 'github-light', 'github-dark': 'github-dark' }
-  })
+  const tokens = await codeToTokensWithThemes(yamlContent, {
+    lang: "yaml",
+    themes: { "github-light": "github-light", "github-dark": "github-dark" },
+  });
 
-  lines.value = configYaml.split('\n').map((line, index) => ({
+  lines.value = yamlContent.split("\n").map((line, index) => ({
     raw: line,
     tokens: tokens[index] || [],
     concept: findConceptForLine(line),
-    lineNum: index + 1
-  }))
+    lineNum: index + 1,
+  }));
 
-  isLoading.value = false
-})
+  isLoading.value = false;
+});
 
 // Handle mouse enter on a line
 function handleMouseEnter(concept: ConfigConcept | null) {
   if (concept) {
-    hoveredConcept.value = concept
+    hoveredConcept.value = concept;
   }
 }
 </script>
@@ -87,7 +102,10 @@ function handleMouseEnter(concept: ConfigConcept | null) {
       <template v-else>
         <h3>Configuration Explorer</h3>
         <p>Hover over highlighted lines in the YAML to learn about each configuration option.</p>
-        <p class="hint">Lines with configuration keys are interactive. Try hovering over <code>healthCheckTimeout</code>, <code>models</code>, or <code>groups</code>.</p>
+        <p class="hint">
+          Lines with configuration keys are interactive. Try hovering over <code>models</code> or
+          <code>cmd</code>.
+        </p>
       </template>
     </div>
   </div>

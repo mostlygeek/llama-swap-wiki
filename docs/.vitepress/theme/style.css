@@ -192,7 +192,6 @@
   background: rgb(34, 197, 94);
 }
 
-/* Config Explorer Component Styles */
 .config-explorer {
   display: flex;
   gap: 0;
@@ -251,9 +250,9 @@
 }
 
 .config-explorer .description-panel {
-  width: 320px;
-  min-width: 320px;
-  padding: 1.5rem;
+  width: 280px;
+  min-width: 280px;
+  padding: 1.25rem;
   background: var(--vp-c-bg-soft);
   border-left: 1px solid var(--vp-c-divider);
   overflow-y: auto;
