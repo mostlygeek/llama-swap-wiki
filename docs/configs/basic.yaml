@@ -1,9 +1,36 @@
-# Minimal llama-swap configuration
-# This is the simplest working config with just one model
+macros:
+  # ${PORT} is a built-in macro that automatically picks a unique port number
+  server-latest: |
+    /path/to/llama-server/llama-server-latest
+    --port ${PORT}
+    -ngl 999 -ngld 999
+    --no-mmap --no-warmup
 
 models:
   llama-8B:
+    name: "Llama 8B"
     cmd: |
-      llama-server
-        --host 127.0.0.1 --port ${PORT}
-        --model /path/to/models/Meta-Llama-3.1-8B-Instruct-Q8_0.gguf
+      ${server-latest}
+      --ctx-size 32766
+      --model /path/to/models/Meta-Llama-3.1-8B-Instruct-Q8_0.gguf
+
+  gpt-oss-20B:
+    name: "GPT-OSS 20B"
+    # unload the model after it's been idle for 5 minutes
+    ttl: 300
+    cmd: |
+      ${server-latest}
+      --model /path/to/models/
+      --temp 1.0
+      --top-k 0
+      --top-p 1.0
+      --jinja
+      --ctx-size 6553
+
+  qwen3-4B-huihui:
+    name: "Qwen3 4B HuiHui"
+    cmd: |
+      ${server-latest}
+      --model /path/to/models/Huihui-Qwen3-4B-Instruct-2507-abliterated.Q8_0.gguf
+      --ctx-size 40960
+      --temp 0.6 --min-p 0 --top-k 20 --top-p 0.95

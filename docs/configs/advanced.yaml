@@ -10,14 +10,13 @@ macros:
     --no-mmap
     --no-warmup
 
-  # remove params from JSON requests to maintain
-  # server defaults
+  # params to strip from requests to maintain server defaults
   default_strip_params: "temperature, min_p, top_k, top_p"
 
 groups:
+  # models used for a RAG workflow
   rag:
     swap: false
-    exclusive: true
     members:
       - reranker
       - embedding
@@ -78,7 +77,7 @@ models:
   z-image:
     env:
       - CUDA_VISIBLE_DEVICES=GPU-6f
-    name: "z-image"
+    # check root endpoint for when server is ready
     checkEndpoint: /
     cmd: |
       /path/to/sd-server
