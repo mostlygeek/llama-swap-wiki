@@ -5,15 +5,31 @@ aside: false
 pageClass: wide-page
 ---
 
-# Configuration Explorer
+<script setup>
+import { data } from './examples.data'
+</script>
 
-Explore the llama-swap configuration format. Hover over lines to learn what it does.
+# Config Explorer
 
 ::: tabs
 
+== Intro
+
+llama-swap is managed by a single `config.yaml` file. Most settings are optional in the configuration. You can start with something as simple as this:
+
+```yaml
+models:
+  llama-8b:
+    cmd: llama-server --port ${PORT} --model /models/llama-8b.gguf
+```
+
+That config is not particularly useful. However, it demonstrates that while there are are many features available you only need to add them when you need them.
+
+Use this explorer to discover the features in the Basic, Advanced and Expert configuration examples.
+
 == Basic
 
-A basic configuration that swaps between three LLM models. `macros` are used to reuse settings for llama-server.
+The basic configuration swaps between three LLM models. The `macros` setting creates reusable snippets so common settings can be changed in one place.
 
 <ConfigExplorer config="basic" />
 
@@ -27,6 +43,10 @@ The `groups` setting allows customizing swapping behaviour for workflows made up
 
 == Expert
 
-<ConfigExplorer config="expert" />
+This is the canonical [config.example.yaml](https://github.com/mostlygeek/llama-swap/blob/main/config.example.yaml) from the github repo, always up to date with the latest features.
+
+Try pasting this into an LLM and explain specific concepts.
+
+<ConfigExplorer :yaml="data.configExample" />
 
 :::

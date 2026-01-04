@@ -9,6 +9,7 @@ macros:
 models:
   llama-8B:
     name: "Llama 8B"
+    description: "fast, smart but showing its age"
     cmd: |
       ${server-latest}
       --ctx-size 32766

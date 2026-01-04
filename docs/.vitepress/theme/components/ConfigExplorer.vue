@@ -1,17 +1,15 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch, computed } from "vue";
 import { codeToTokensWithThemes } from "shiki";
 import type { ThemedTokenWithVariants } from "shiki";
 import { findConceptForLine, type ConfigConcept } from "../lib/config-concepts";
 import basicYaml from "../../../configs/basic.yaml?raw";
 import advancedYaml from "../../../configs/advanced.yaml?raw";
-import expertYaml from "../../../configs/expert.yaml?raw";
 
 // Map config names to YAML content
 const configMap: Record<string, string> = {
   basic: basicYaml,
   advanced: advancedYaml,
-  expert: expertYaml,
 };
 
 interface Line {
@@ -22,15 +20,19 @@ interface Line {
 }
 
 const props = defineProps<{
-  config?: "basic" | "advanced" | "expert";
+  config?: "basic" | "advanced";
+  yaml?: string | null;
 }>();
 
 const hoveredConcept = ref<ConfigConcept | null>(null);
 const lines = ref<Line[]>([]);
 const isLoading = ref(true);
 
-// Get YAML content based on prop
-const yamlContent = configMap[props.config ?? "basic"] ?? basicYaml;
+// Get YAML content: prefer yaml prop, then fall back to config map
+const yamlContent = computed(() => {
+  if (props.yaml) return props.yaml;
+  return configMap[props.config ?? "basic"] ?? basicYaml;
+});
 
 // Get CSS style for a token with light/dark variants
 function tokenStyle(token: ThemedTokenWithVariants): Record<string, string> {
@@ -42,14 +44,15 @@ function tokenStyle(token: ThemedTokenWithVariants): Record<string, string> {
   return {};
 }
 
-// Initialize Shiki and tokenize YAML with both themes
-onMounted(async () => {
-  const tokens = await codeToTokensWithThemes(yamlContent, {
+// Tokenize YAML with both themes
+async function tokenizeYaml(yaml: string) {
+  isLoading.value = true;
+  const tokens = await codeToTokensWithThemes(yaml, {
     lang: "yaml",
     themes: { "github-light": "github-light", "github-dark": "github-dark" },
   });
 
-  lines.value = yamlContent.split("\n").map((line, index) => ({
+  lines.value = yaml.split("\n").map((line, index) => ({
     raw: line,
     tokens: tokens[index] || [],
     concept: findConceptForLine(line),
@@ -57,7 +60,11 @@ onMounted(async () => {
   }));
 
   isLoading.value = false;
-});
+}
+
+// Initialize on mount and watch for yaml prop changes
+onMounted(() => tokenizeYaml(yamlContent.value));
+watch(yamlContent, (newYaml) => tokenizeYaml(newYaml));
 
 // Handle mouse enter on a line
 function handleMouseEnter(concept: ConfigConcept | null) {

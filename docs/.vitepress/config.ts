@@ -10,9 +10,8 @@ export default defineConfig({
 
   themeConfig: {
     nav: [
-      { text: "Home", link: "/" },
-      { text: "Explore", link: "/explore" },
-      { text: "Examples", link: "/examples" },
+      { text: "install", link: "/" },
+      { text: "config.yaml", link: "/explore" },
     ],
 
     socialLinks: [{ icon: "github", link: "https://github.com/mostlygeek/llama-swap" }],

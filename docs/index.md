@@ -1,21 +1,14 @@
 ---
-layout: home
-
-hero:
-  name: llama-swap
-  #text: Hot-swap between local AI models
-  tagline: Reliable model swapping for any local OpenAI and Anthropic api compatible server
+next:
+  text: Configuration Explorer
+  link: /explore
 ---
 
 # About
 
-- no strings attached: no tracking, MIT licensed
-- design philsophy: one binary, one configuration file, no dependencies
-- reliable, on demand loading of AI servers (llama.cpp, vllm, whisper, stable-diffusion.cpp, etc)
+llama-swap is used by thousands of users for reliable for on-demand loading of AI backends like llama.cpp, vLLM, Whisper, and stable-diffusion.cpp. It follows a simple design philosophy: one binary, one configuration file, no dependencies.
 
-## Features
-
-(list from github.com/mostlygeek/llama-swap readme)
+It comes with no strings attached. MIT licensed with zero telemetry collection.
 
 ## Installation
 
@@ -82,17 +75,3 @@ GOOS=linux GOARCH=arm64 make build
 ```
 
 :::
-
-## Configuration
-
-Create `config.yaml`:
-
-```yaml
-models:
-  llama-8b:
-    cmd: llama-server --port ${PORT} --model /models/llama-8b.gguf
-  qwen-coder:
-    cmd: llama-server --port ${PORT} --model /models/qwen-coder.gguf
-```
-
-- go to the tour
