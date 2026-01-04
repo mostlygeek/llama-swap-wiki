@@ -23,15 +23,13 @@
   padding-top: 0;
 }
 
-/* Wide page layout for ConfigBuilder */
+/* Wide page layout - full width content when aside: false */
 .wide-page .VPDoc .container {
   max-width: none !important;
 }
 
 .wide-page .VPDoc .content {
   max-width: none !important;
-  padding-left: 0 !important;
-  padding-right: 0 !important;
 }
 
 /* Shiki dual-theme token colors */
